@@ -1,0 +1,28 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="show-container">
+    <img 
+        src="<%= listing.image %>" 
+        alt="<%= listing.title %>" 
+        class="show-img"
+        onerror="this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000'"
+    >
+
+    <h1><%= listing.title %></h1>
+
+    <p><%= listing.description %></p>
+    <p class="price"><strong>£<%= listing.price %></strong></p>
+    <p class="location"><%= listing.location %>, <%= listing.country %></p>
+
+    <div class="action-buttons">
+        <a href="/" class="btn secondary-btn">Back</a>
+    
+        <% if(currentUser && listing.owner && currentUser.toString() === listing.owner._id.toString()) { %>
+            <a href="/listings/<%= listing._id %>/edit" class="btn">Edit</a>
+    
+            <form action="/listings/<%= listing._id %>?_method=DELETE" method="POST">
+                <button class="btn delete-btn">Delete</button>
+            </form>
+        <% } %>
+    </div>
+</div>

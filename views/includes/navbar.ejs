@@ -1,0 +1,17 @@
+<nav class="navbar">
+    <div class="nav-left">
+        <a href="/" class="logo">LifeBeyond 🌍</a>
+    </div>
+
+    <div class="nav-right">
+        <a href="/">Home</a>
+        <a href="/listings/new">Add Listing</a>
+
+        <% if(!currentUser) { %>
+            <a href="/register">Register</a>
+            <a href="/login">Login</a>
+        <% } else { %>
+            <a href="/logout">Logout</a>
+        <% } %>
+    </div>
+</nav>

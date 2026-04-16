@@ -1,0 +1,29 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="page-header">
+    <h1>All Listings</h1>
+    <% if(currentUser) { %>
+        <a href="/listings/new" class="btn">Add New Listing</a>
+    <% } %>
+</div>
+
+<div class="card-container">
+    <% for(let listing of listings) { %>
+        <a href="/listings/<%= listing._id %>" class="listing-link">
+            <div class="card">
+            <img 
+                src="<%= listing.image %>" 
+                alt="<%= listing.title %>" 
+                class="card-img"
+                onerror="this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000'"
+            >
+                <div class="card-body">
+                    <h3><%= listing.title %></h3>
+                    <p><%= listing.description %></p>
+                    <p class="price">£<%= listing.price %></p>
+                    <p class="location"><%= listing.location %>, <%= listing.country %></p>
+                </div>
+            </div>
+        </a>
+    <% } %>
+</div>

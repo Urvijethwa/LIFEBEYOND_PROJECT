@@ -3,6 +3,7 @@ const router = express.Router();
 const Listing = require("../models/listing");
 const User = require("../models/user");
 const { isLoggedIn, isOwner, validateListing } = require("../middleware");
+const mongoose = require("mongoose");
 
 // Home page - show all listings with search, filter, and sorting
 router.get("/", async (req, res) => {
@@ -10,30 +11,48 @@ router.get("/", async (req, res) => {
 
     let filter = {};
 
-    if (search) {
-        filter.title = { $regex: search, $options: "i" };
+    // OR search for title OR location
+    if (search || location) {
+        filter.$or = [];
+
+        if (search) {
+            filter.$or.push({
+                title: { $regex: search, $options: "i" }
+            });
+        }
+
+        if (location) {
+            filter.$or.push({
+                location: { $regex: location, $options: "i" }
+            });
+        }
     }
 
-    if (location) {
-        filter.location = { $regex: location, $options: "i" };
-    }
-
+    // Price filter
     if (maxPrice) {
         filter.price = { $lte: Number(maxPrice) };
     }
 
-    let sortOption = {};
+    let query = Listing.find(filter).populate("reviews");
 
+    // Sorting
     if (sort === "priceLowHigh") {
-        sortOption.price = 1;
+        query = query.sort({ price: 1 });
     } else if (sort === "priceHighLow") {
-        sortOption.price = -1;
+        query = query.sort({ price: -1 });
     } else if (sort === "titleAZ") {
-        sortOption.title = 1;
+        query = query.sort({ title: 1 });
     }
 
-    const listings = await Listing.find(filter).sort(sortOption);
-    res.render("listings/index", { listings, search, location, maxPrice, sort });
+    const listings = await query;
+
+    res.render("listings/index", {
+        listings,
+        search,
+        location,
+        maxPrice,
+        sort
+    });
 });
 
 // New listing form
@@ -48,6 +67,12 @@ router.post("/", isLoggedIn, validateListing, async (req, res) => {
     await newListing.save();
     req.flash("success", "New listing created successfully.");
     res.redirect("/listings");
+});
+
+// Show listings created by current user
+router.get("/my/listings", isLoggedIn, async (req, res) => {
+    const listings = await Listing.find({ owner: req.session.userId }).populate("reviews");
+    res.render("listings/myListings", { listings });
 });
 
 // Show single listing
@@ -75,12 +100,25 @@ router.get("/:id", async (req, res) => {
         isSaved = user.wishlist.includes(listing._id);
     }
 
-    res.render("listings/show", { listing, isSaved });
+    let averageRating = 0;
+
+    if (listing.reviews.length > 0) {
+        const total = listing.reviews.reduce((sum, review) => sum + review.rating, 0);
+        averageRating = (total / listing.reviews.length).toFixed(1);
+    }
+
+    res.render("listings/show", { listing, isSaved, averageRating });
 });
 
 // Edit form
 router.get("/:id/edit", isLoggedIn, isOwner, async (req, res) => {
     const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        req.flash("error", "Invalid listing ID.");
+        return res.redirect("/listings");
+    }
+
     const listing = await Listing.findById(id);
 
     if (!listing) {
@@ -94,6 +132,12 @@ router.get("/:id/edit", isLoggedIn, isOwner, async (req, res) => {
 // Update listing
 router.put("/:id", isLoggedIn, isOwner, validateListing, async (req, res) => {
     const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        req.flash("error", "Invalid listing ID.");
+        return res.redirect("/listings");
+    }
+
     await Listing.findByIdAndUpdate(id, req.body);
     req.flash("success", "Listing updated successfully.");
     res.redirect(`/listings/${id}`);
@@ -102,6 +146,12 @@ router.put("/:id", isLoggedIn, isOwner, validateListing, async (req, res) => {
 // Delete listing
 router.delete("/:id", isLoggedIn, isOwner, async (req, res) => {
     const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        req.flash("error", "Invalid listing ID.");
+        return res.redirect("/listings");
+    }
+
     await Listing.findByIdAndDelete(id);
     req.flash("success", "Listing deleted successfully.");
     res.redirect("/listings");

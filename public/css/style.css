@@ -244,3 +244,27 @@ a {
     font-size: 1rem;
     box-sizing: border-box;
 }
+
+.rating-summary {
+    font-size: 1.05rem;
+    margin: 10px 0 18px 0;
+    color: #444;
+}
+
+.card-rating {
+    margin: 8px 0;
+    font-size: 0.95rem;
+    color: #444;
+}
+
+.map-section {
+    margin-top: 25px;
+}
+
+#map {
+    height: 350px;
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 10px;
+}

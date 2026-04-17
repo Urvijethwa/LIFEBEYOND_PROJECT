@@ -1,46 +1,9 @@
 <% layout("layouts/boilerplate") %>
 
 <div class="page-header">
-    <h1>All Listings</h1>
-    <% if(currentUser) { %>
-        <a href="/listings/new" class="btn">Add New Listing</a>
-    <% } %>
+    <h1>My Listings</h1>
+    <a href="/listings/new" class="btn">Add New Listing</a>
 </div>
-
-<form action="/listings" method="GET" class="search-form">
-    <div class="search-group">
-        <input 
-            type="text" 
-            name="search" 
-            placeholder="Search by title"
-            value="<%= search || '' %>"
-        >
-
-        <input 
-            type="text" 
-            name="location" 
-            placeholder="Search by location"
-            value="<%= location || '' %>"
-        >
-
-        <input 
-            type="number" 
-            name="maxPrice" 
-            placeholder="Max price"
-            value="<%= maxPrice || '' %>"
-        >
-
-        <select name="sort">
-            <option value="">Sort By</option>
-            <option value="priceLowHigh" <%= sort === "priceLowHigh" ? "selected" : "" %>>Price: Low to High</option>
-            <option value="priceHighLow" <%= sort === "priceHighLow" ? "selected" : "" %>>Price: High to Low</option>
-            <option value="titleAZ" <%= sort === "titleAZ" ? "selected" : "" %>>Title: A to Z</option>
-        </select>
-
-        <button type="submit" class="btn">Search</button>
-        <a href="/listings" class="btn secondary-btn">Reset</a>
-    </div>
-</form>
 
 <div class="card-container">
     <% for(let listing of listings) { %>
@@ -79,5 +42,5 @@
 </div>
 
 <% if(listings.length === 0) { %>
-    <p>No listings found.</p>
+    <p>You have not created any listings yet.</p>
 <% } %>

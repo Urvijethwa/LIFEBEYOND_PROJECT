@@ -1,13 +1,14 @@
 <nav class="navbar">
     <div class="nav-left">
-        <a href="/" class="logo">LifeBeyond 🌍</a>
+        <a href="/listings" class="logo">LifeBeyond 🌍</a>
     </div>
 
     <div class="nav-right">
-        <a href="/">Home</a>
+        <a href="/listings">Home</a>
 
         <% if(currentUser) { %>
             <a href="/listings/new">Add Listing</a>
+            <a href="/listings/my/listings">My Listings</a>
             <a href="/wishlist">Wishlist</a>
             <a href="/logout">Logout</a>
         <% } else { %>

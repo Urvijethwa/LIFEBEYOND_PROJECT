@@ -11,6 +11,8 @@ const listingSchema = new Schema({
     price: Number,
     location: String,
     country: String,
+    latitude: Number,
+    longitude: Number,
     owner: {
         type: Schema.Types.ObjectId,
         ref: "User"

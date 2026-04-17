@@ -10,6 +10,13 @@
 
     <h1><%= listing.title %></h1>
 
+    <% if(listing.reviews.length > 0) { %>
+        <p class="rating-summary">⭐ <strong><%= averageRating %></strong> / 5 
+        (<%= listing.reviews.length %> review<%= listing.reviews.length > 1 ? "s" : "" %>)</p>
+    <% } else { %>
+        <p class="rating-summary">No ratings yet</p>
+    <% } %>
+
     <p><%= listing.description %></p>
     <p class="price"><strong>£<%= listing.price %></strong></p>
     <p class="location"><%= listing.location %>, <%= listing.country %></p>
@@ -72,7 +79,15 @@
     <div class="review-container">
         <% for(let review of listing.reviews) { %>
             <div class="review-card">
-                <p><strong>Rating:</strong> <%= review.rating %>/5</p>
+                <p><strong>Rating:</strong> 
+                    <% for(let i = 1; i <= 5; i++) { %>
+                        <% if(i <= review.rating) { %>
+                            ⭐
+                        <% } else { %>
+                            ☆
+                        <% } %>
+                    <% } %>
+                </p>
                 <p><%= review.comment %></p>
 
                 <% if(review.author) { %>
@@ -92,3 +107,4 @@
         <p>No reviews yet.</p>
     <% } %>
 </div>
+

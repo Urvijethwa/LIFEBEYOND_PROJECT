@@ -7,16 +7,51 @@
     <% } %>
 </div>
 
+<form action="/" method="GET" class="search-form">
+    <div class="search-group">
+        <input 
+            type="text" 
+            name="search" 
+            placeholder="Search by title"
+            value="<%= search || '' %>"
+        >
+
+        <input 
+            type="text" 
+            name="location" 
+            placeholder="Search by location"
+            value="<%= location || '' %>"
+        >
+
+        <input 
+            type="number" 
+            name="maxPrice" 
+            placeholder="Max price"
+            value="<%= maxPrice || '' %>"
+        >
+
+        <select name="sort">
+            <option value="">Sort By</option>
+            <option value="priceLowHigh" <%= sort === "priceLowHigh" ? "selected" : "" %>>Price: Low to High</option>
+            <option value="priceHighLow" <%= sort === "priceHighLow" ? "selected" : "" %>>Price: High to Low</option>
+            <option value="titleAZ" <%= sort === "titleAZ" ? "selected" : "" %>>Title: A to Z</option>
+        </select>
+
+        <button type="submit" class="btn">Search</button>
+        <a href="/" class="btn secondary-btn">Reset</a>
+    </div>
+</form>
+
 <div class="card-container">
     <% for(let listing of listings) { %>
         <a href="/listings/<%= listing._id %>" class="listing-link">
             <div class="card">
-            <img 
-                src="<%= listing.image %>" 
-                alt="<%= listing.title %>" 
-                class="card-img"
-                onerror="this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000'"
-            >
+                <img 
+                    src="<%= listing.image %>" 
+                    alt="<%= listing.title %>" 
+                    class="card-img"
+                    onerror="this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000'"
+                >
                 <div class="card-body">
                     <h3><%= listing.title %></h3>
                     <p><%= listing.description %></p>
@@ -27,3 +62,7 @@
         </a>
     <% } %>
 </div>
+
+<% if(listings.length === 0) { %>
+    <p>No listings found.</p>
+<% } %>

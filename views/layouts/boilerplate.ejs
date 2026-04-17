@@ -12,6 +12,17 @@
     <%- include("../includes/navbar") %>
 
     <main>
+        <% if(success && success.length) { %>
+            <div class="flash-message success-message">
+                <%= success[0] %>
+            </div>
+        <% } %>
+        
+        <% if(error && error.length) { %>
+            <div class="flash-message error-message">
+                <%= error[0] %>
+            </div>
+        <% } %>
         <%- body %>
     </main>
 

@@ -176,3 +176,71 @@ a {
     min-height: 120px;
     resize: vertical;
 }
+
+.flash-message {
+    max-width: 700px;
+    margin: 20px auto;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.success-message {
+    background: #d4edda;
+    color: #155724;
+}
+
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.search-form {
+    margin-bottom: 25px;
+}
+
+.search-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.search-group input {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    min-width: 180px;
+}
+
+.search-group select {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    min-width: 180px;
+}
+
+.review-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.review-card {
+    background: #f4f4f4;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+}
+
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}

@@ -14,15 +14,81 @@
     <p class="price"><strong>£<%= listing.price %></strong></p>
     <p class="location"><%= listing.location %>, <%= listing.country %></p>
 
+    <% if(listing.owner) { %>
+        <p class="location">Created by: <%= listing.owner.username %></p>
+    <% } %>
+
     <div class="action-buttons">
         <a href="/" class="btn secondary-btn">Back</a>
-    
+
+        <% if(currentUser) { %>
+            <% if(isSaved) { %>
+                <form action="/listings/<%= listing._id %>/remove-wishlist" method="POST">
+                    <button class="btn secondary-btn">Remove from Wishlist</button>
+                </form>
+            <% } else { %>
+                <form action="/listings/<%= listing._id %>/wishlist" method="POST">
+                    <button class="btn">Add to Wishlist</button>
+                </form>
+            <% } %>
+        <% } %>
+
         <% if(currentUser && listing.owner && currentUser.toString() === listing.owner._id.toString()) { %>
             <a href="/listings/<%= listing._id %>/edit" class="btn">Edit</a>
-    
+
             <form action="/listings/<%= listing._id %>?_method=DELETE" method="POST">
                 <button class="btn delete-btn">Delete</button>
             </form>
         <% } %>
     </div>
+
+    <hr style="margin: 30px 0;">
+
+    <h2>Reviews</h2>
+
+    <% if(currentUser) { %>
+        <form action="/listings/<%= listing._id %>/reviews" method="POST" class="listing-form">
+            <div class="form-group">
+                <label for="rating">Rating</label>
+                <select name="rating" id="rating" required>
+                    <option value="">Select rating</option>
+                    <option value="1">1 - Poor</option>
+                    <option value="2">2 - Fair</option>
+                    <option value="3">3 - Good</option>
+                    <option value="4">4 - Very Good</option>
+                    <option value="5">5 - Excellent</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="comment">Comment</label>
+                <textarea name="comment" id="comment" required></textarea>
+            </div>
+
+            <button class="btn">Add Review</button>
+        </form>
+    <% } %>
+
+    <div class="review-container">
+        <% for(let review of listing.reviews) { %>
+            <div class="review-card">
+                <p><strong>Rating:</strong> <%= review.rating %>/5</p>
+                <p><%= review.comment %></p>
+
+                <% if(review.author) { %>
+                    <p class="location">By: <%= review.author.username %></p>
+                <% } %>
+
+                <% if(currentUser && review.author && currentUser.toString() === review.author._id.toString()) { %>
+                    <form action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE" method="POST">
+                        <button class="btn delete-btn">Delete Review</button>
+                    </form>
+                <% } %>
+            </div>
+        <% } %>
+    </div>
+
+    <% if(listing.reviews.length === 0) { %>
+        <p>No reviews yet.</p>
+    <% } %>
 </div>

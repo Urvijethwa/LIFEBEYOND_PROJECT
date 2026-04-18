@@ -26,7 +26,7 @@
     <% } %>
 
     <div class="action-buttons">
-        <a href="/" class="btn secondary-btn">Back</a>
+        <a href="/listings" class="btn secondary-btn">Back</a>
 
         <% if(currentUser) { %>
             <% if(isSaved) { %>
@@ -50,6 +50,65 @@
     </div>
 
     <hr style="margin: 30px 0;">
+    <% if(listing.latitude != null && listing.longitude != null) { %>
+        <div class="map-section">
+            <h2>Location on Map</h2>
+            <div 
+                id="map"
+                data-lat="<%= listing.latitude %>"
+                data-lng="<%= listing.longitude %>"
+                data-title="<%= listing.title %>"
+            ></div>
+        </div>
+    
+        <script>
+            window.addEventListener("load", function () {
+                const mapElement = document.getElementById("map");
+                const lat = parseFloat(mapElement.dataset.lat);
+                const lng = parseFloat(mapElement.dataset.lng);
+                const title = mapElement.dataset.title;
+    
+                const map = L.map("map").setView([lat, lng], 13);
+    
+                L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                    attribution: "&copy; OpenStreetMap contributors"
+                }).addTo(map);
+    
+                L.marker([lat, lng])
+                    .addTo(map)
+                    .bindPopup(title)
+                    .openPopup();
+            });
+        </script>
+    <% } %>
+
+    <% if(nearbyListings && nearbyListings.length > 0) { %>
+        <hr style="margin: 30px 0;">
+    
+        <h2>Nearby Listings</h2>
+    
+        <div class="card-container">
+            <% for(let nearby of nearbyListings) { %>
+                <a href="/listings/<%= nearby._id %>" class="listing-link">
+                    <div class="card">
+                        <img 
+                            src="<%= nearby.image %>" 
+                            alt="<%= nearby.title %>" 
+                            class="card-img"
+                            onerror="this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000'"
+                        >
+                        <div class="card-body">
+                            <h3><%= nearby.title %></h3>
+                            <p><%= nearby.description %></p>
+                            <p class="price">£<%= nearby.price %></p>
+                            <p class="location"><%= nearby.location %>, <%= nearby.country %></p>
+                            <p class="card-rating"><strong><%= nearby.distance %> km away</strong></p>
+                        </div>
+                    </div>
+                </a>
+            <% } %>
+        </div>
+    <% } %>
 
     <h2>Reviews</h2>
 
@@ -107,4 +166,3 @@
         <p>No reviews yet.</p>
     <% } %>
 </div>
-

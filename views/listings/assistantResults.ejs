@@ -1,0 +1,55 @@
+<% layout("layouts/boilerplate") %>
+
+<h1>Recommended Listings</h1>
+
+<p class="location">
+    Based on your preferences:
+    <strong><%= preferences.location %></strong>,
+    budget up to <strong>£<%= preferences.budget %></strong>,
+    distance <strong><%= preferences.radius %> km</strong>,
+    stay type <strong><%= preferences.stayType %></strong>
+</p>
+
+<% if(weatherSummary) { %>
+    <div class="review-card" style="margin-bottom: 20px;">
+        <h3>Weather at your preferred location</h3>
+        <p><strong><%= weatherSummary.weatherText %></strong></p>
+        <p>Max: <%= weatherSummary.maxTemp %>°C | Min: <%= weatherSummary.minTemp %>°C</p>
+    </div>
+<% } %>
+
+<div class="card-container">
+    <% for(let listing of recommendations) { %>
+        <a href="/listings/<%= listing._id %>" class="listing-link">
+            <div class="card">
+                <img 
+                    src="<%= listing.image %>" 
+                    alt="<%= listing.title %>" 
+                    class="card-img"
+                    onerror="this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000'"
+                >
+                <div class="card-body">
+                    <h3><%= listing.title %></h3>
+                    <p><%= listing.description %></p>
+                    <p class="price">£<%= listing.price %></p>
+                    <p class="location"><%= listing.location %>, <%= listing.country %></p>
+                    <p class="card-rating"><strong>Match Score: <%= listing.score %></strong></p>
+
+                    <% if(listing.distance) { %>
+                        <p class="card-rating"><%= listing.distance %> km from preferred location</p>
+                    <% } %>
+
+                    <% if(listing.explanation && listing.explanation.length > 0) { %>
+                        <p class="location">
+                            Recommended because: <%= listing.explanation.join(", ") %>.
+                        </p>
+                    <% } %>
+                </div>
+            </div>
+        </a>
+    <% } %>
+</div>
+
+<% if(recommendations.length === 0) { %>
+    <p>No matching recommendations found. Try changing your preferences.</p>
+<% } %>

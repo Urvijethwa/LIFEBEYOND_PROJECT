@@ -16,7 +16,10 @@
     <% } else { %>
         <p class="rating-summary">No ratings yet</p>
     <% } %>
-
+    
+    <% if(listing.reviews.length > 0) { %>
+        <p class="review-summary"><%= reviewSummary %></p>
+    <% } %>
     <p><%= listing.description %></p>
     <p class="price"><strong>£<%= listing.price %></strong></p>
     <p class="location"><%= listing.location %>, <%= listing.country %></p>
@@ -28,7 +31,7 @@
     <div class="action-buttons">
         <a href="/listings" class="btn secondary-btn">Back</a>
 
-        <% if(currentUser) { %>
+        <% if(currentUser && listing.owner && currentUser.toString() !== listing.owner._id.toString()) { %>
             <% if(isSaved) { %>
                 <form action="/listings/<%= listing._id %>/remove-wishlist" method="POST">
                     <button class="btn secondary-btn">Remove from Wishlist</button>

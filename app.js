@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const ejsMate = require("ejs-mate");
@@ -14,7 +15,8 @@ const reviewRoutes = require("./routes/reviews");
 
 const app = express();
 
-const MONGO_URL = "mongodb://127.0.0.1:27017/lifebeyond";
+const MONGO_URL = process.env.MONGO_URL || "mongodb://127.0.0.1:27017/lifebeyond";
+const SESSION_SECRET = process.env.SESSION_SECRET || "mysecretkey";
 
 // Connect to MongoDB
 mongoose.connect(MONGO_URL)
@@ -29,7 +31,7 @@ mongoose.connect(MONGO_URL)
 const store = MongoStore.create({
     mongoUrl: MONGO_URL,
     crypto: {
-        secret: "mysecretkey"
+        secret: SESSION_SECRET
     },
     touchAfter: 24 * 3600
 });
@@ -37,7 +39,7 @@ const store = MongoStore.create({
 // Session configuration
 const sessionOptions = {
     store,
-    secret: "mysecretkey",
+    secret: SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -79,6 +81,8 @@ app.get("/", (req, res) => {
 });
 
 // Start server
-app.listen(8080, () => {
-    console.log("Server is listening on port 8080");
+const PORT = process.env.PORT || 8080;
+
+app.listen(PORT, () => {
+    console.log(`Server is listening on port ${PORT}`);
 });

@@ -57,7 +57,7 @@ router.get("/", async (req, res) => {
 
     let query = Listing.find(filter).populate("reviews");
 
-    // Sorting
+        // Sorting
     if (sort === "priceLowHigh") {
         query = query.sort({ price: 1 });
     } else if (sort === "priceHighLow") {
@@ -349,6 +349,21 @@ router.get("/:id", async (req, res) => {
         averageRating = (total / listing.reviews.length).toFixed(1);
     }
 
+    let reviewSummary = "No review summary available yet.";
+
+if (listing.reviews.length > 0) {
+    const positiveReviews = listing.reviews.filter(r => r.rating >= 4).length;
+    const negativeReviews = listing.reviews.filter(r => r.rating <= 2).length;
+
+    if (positiveReviews > negativeReviews) {
+        reviewSummary = "Guests generally had a positive experience.";
+    } else if (negativeReviews > positiveReviews) {
+        reviewSummary = "Some guests reported issues with this property.";
+    } else {
+        reviewSummary = "Mixed reviews from guests.";
+    }
+}
+
     let nearbyListings = [];
 
     if (listing.latitude != null && listing.longitude != null) {
@@ -381,7 +396,8 @@ router.get("/:id", async (req, res) => {
         listing,
         isSaved,
         averageRating,
-        nearbyListings
+        nearbyListings,
+        reviewSummary
     });
 });
 

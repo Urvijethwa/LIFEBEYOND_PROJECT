@@ -30,7 +30,7 @@
             value="<%= maxPrice || '' %>"
         >
 
-        <select name="sort">
+        <select name="sort" class="sort-select">
             <option value="">Sort By</option>
             <option value="priceLowHigh" <%= sort === "priceLowHigh" ? "selected" : "" %>>Price: Low to High</option>
             <option value="priceHighLow" <%= sort === "priceHighLow" ? "selected" : "" %>>Price: High to Low</option>

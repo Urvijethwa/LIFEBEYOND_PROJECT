@@ -1,7 +1,11 @@
 <% layout("layouts/boilerplate") %>
 
 <div class="page-header">
-    <h1>All Listings</h1>
+    <div>
+        <h1>All Listings</h1>
+        <p class="location">Explore stylish stays, unique locations, and travel-ready accommodation.</p>
+    </div>
+
     <% if(currentUser) { %>
         <a href="/listings/new" class="btn">Add New Listing</a>
     <% } %>

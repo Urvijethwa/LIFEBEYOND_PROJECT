@@ -1,28 +1,35 @@
 <% layout("layouts/boilerplate") %>
 
-<h1>My Wishlist</h1>
-
-<div class="card-container">
-    <% for(let listing of wishlist) { %>
-        <a href="/listings/<%= listing._id %>" class="listing-link">
-            <div class="card">
-                <img 
-                    src="<%= listing.image %>" 
-                    alt="<%= listing.title %>" 
-                    class="card-img"
-                    onerror="this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000'"
-                >
-                <div class="card-body">
-                    <h3><%= listing.title %></h3>
-                    <p><%= listing.description %></p>
-                    <p class="price">£<%= listing.price %></p>
-                    <p class="location"><%= listing.location %>, <%= listing.country %></p>
-                </div>
-            </div>
-        </a>
-    <% } %>
+<div class="page-header">
+    <div>
+        <h1>My Wishlist</h1>
+        <p class="location">Save your favourite stays and come back to them anytime.</p>
+    </div>
 </div>
 
 <% if(wishlist.length === 0) { %>
-    <p>You have no saved listings yet.</p>
+    <div class="empty-state">
+        <p>You have no saved listings yet.</p>
+    </div>
+<% } else { %>
+    <div class="card-container">
+        <% for(let listing of wishlist) { %>
+            <a href="/listings/<%= listing._id %>" class="listing-link">
+                <div class="card">
+                    <img 
+                        src="<%= listing.image %>" 
+                        alt="<%= listing.title %>" 
+                        class="card-img"
+                        onerror="this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000'"
+                    >
+                    <div class="card-body">
+                        <h3><%= listing.title %></h3>
+                        <p><%= listing.description %></p>
+                        <p class="price">£<%= listing.price %></p>
+                        <p class="location"><%= listing.location %>, <%= listing.country %></p>
+                    </div>
+                </div>
+            </a>
+        <% } %>
+    </div>
 <% } %>

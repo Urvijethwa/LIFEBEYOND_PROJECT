@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LifeBeyond</title>
 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
-
     <%- include("../includes/navbar") %>
 
     <main>
@@ -18,14 +18,47 @@
                 <%= success[0] %>
             </div>
         <% } %>
-        
+
         <% if(error && error.length) { %>
             <div class="flash-message error-message">
                 <%= error[0] %>
             </div>
         <% } %>
+
         <%- body %>
     </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <h3>LifeBeyond <span><i class="fa-solid fa-leaf"></i></span></h3>
+                <p>
+                    Discover accommodation beyond the ordinary. LifeBeyond helps users
+                    explore listings, compare locations, save favourites, and receive
+                    smarter travel suggestions.
+                </p>
+            </div>
+
+            <div class="footer-links">
+                <h3>Quick Links</h3>
+                <a href="/listings">All Listings</a>
+                <a href="/listings/assistant">Assistant</a>
+                <a href="/wishlist">Wishlist</a>
+            </div>
+
+            <div class="footer-contact">
+                <h3>Project Info</h3>
+                <p>Final Year Project</p>
+                <p>LifeBeyond Accommodation Platform</p>
+                <p>Designed for smarter travel discovery</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2026 LifeBeyond. All rights reserved.</p>
+        </div>
+    </footer>
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </body>
 </html>

@@ -29,28 +29,30 @@
     <% } %>
 
     <div class="action-buttons">
-        <a href="/listings" class="btn secondary-btn">Back</a>
+    <a href="/listings" class="btn secondary-btn">Back</a>
 
-        <% if(currentUser && listing.owner && currentUser.toString() !== listing.owner._id.toString()) { %>
-            <% if(isSaved) { %>
-                <form action="/listings/<%= listing._id %>/remove-wishlist" method="POST">
-                    <button class="btn secondary-btn">Remove from Wishlist</button>
-                </form>
-            <% } else { %>
-                <form action="/listings/<%= listing._id %>/wishlist" method="POST">
-                    <button class="btn">Add to Wishlist</button>
-                </form>
-            <% } %>
-        <% } %>
+    <% if(currentUser && listing.owner && currentUser.toString() !== listing.owner._id.toString()) { %>
+        <a href="/listings/<%= listing._id %>/book" class="btn">Book Now</a>
 
-        <% if(currentUser && listing.owner && currentUser.toString() === listing.owner._id.toString()) { %>
-            <a href="/listings/<%= listing._id %>/edit" class="btn">Edit</a>
-
-            <form action="/listings/<%= listing._id %>?_method=DELETE" method="POST">
-                <button class="btn delete-btn">Delete</button>
+        <% if(isSaved) { %>
+            <form action="/listings/<%= listing._id %>/remove-wishlist" method="POST">
+                <button class="btn secondary-btn">Remove from Wishlist</button>
+            </form>
+        <% } else { %>
+            <form action="/listings/<%= listing._id %>/wishlist" method="POST">
+                <button class="btn">Add to Wishlist</button>
             </form>
         <% } %>
-    </div>
+    <% } %>
+
+    <% if(currentUser && listing.owner && currentUser.toString() === listing.owner._id.toString()) { %>
+        <a href="/listings/<%= listing._id %>/edit" class="btn">Edit</a>
+
+        <form action="/listings/<%= listing._id %>?_method=DELETE" method="POST">
+            <button class="btn delete-btn">Delete</button>
+        </form>
+    <% } %>
+</div>
 
     <hr style="margin: 30px 0;">
     <% if(listing.latitude != null && listing.longitude != null) { %>

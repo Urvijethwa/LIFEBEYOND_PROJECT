@@ -1,0 +1,40 @@
+<% layout("layouts/boilerplate") %>
+
+<h1 class="form-heading">Book <%= listing.title %></h1>
+
+<form action="/listings/<%= listing._id %>/book" method="POST" class="listing-form">
+    <p class="location">
+        Price per night: <strong>£<%= listing.price %></strong>
+    </p>
+
+    <div class="form-group">
+        <label for="checkIn">Check-in Date</label>
+        <input type="date" name="checkIn" id="checkIn" required>
+    </div>
+
+    <div class="form-group">
+        <label for="checkOut">Check-out Date</label>
+        <input type="date" name="checkOut" id="checkOut" required>
+    </div>
+
+    <div class="form-group">
+        <label for="guests">Number of Guests</label>
+        <input type="number" name="guests" id="guests" min="1" required>
+    </div>
+
+    <div class="form-group">
+        <label for="message">Message to Owner</label>
+        <textarea 
+            name="message" 
+            id="message" 
+            placeholder="Write any questions or special requests here..."
+        ></textarea>
+    </div>
+
+    <p class="rating-summary">
+        Estimated total will be calculated after submitting.
+    </p>
+
+    <button class="btn">Send Booking Request</button>
+    <a href="/listings/<%= listing._id %>" class="btn secondary-btn">Cancel</a>
+</form>

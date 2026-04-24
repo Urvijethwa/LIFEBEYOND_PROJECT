@@ -12,6 +12,7 @@ const listingRoutes = require("./routes/listings");
 const userRoutes = require("./routes/users");
 const wishlistRoutes = require("./routes/wishlist");
 const reviewRoutes = require("./routes/reviews");
+const bookingRoutes = require("./routes/bookings");
 
 const app = express();
 
@@ -72,6 +73,7 @@ app.use((req, res, next) => {
 // Routes
 app.use("/", userRoutes);
 app.use("/", wishlistRoutes);
+app.use("/", bookingRoutes);
 app.use("/listings", listingRoutes);
 app.use("/listings/:id/reviews", reviewRoutes);
 

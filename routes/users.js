@@ -12,13 +12,14 @@ router.get("/register", (req, res) => {
 // Register user
 router.post("/register", validateUser, async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        const { username, email, password, role } = req.body;
         const hashedPassword = await bcrypt.hash(password, 12);
 
         const newUser = new User({
             username,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            role
         });
 
         await newUser.save();
@@ -55,8 +56,11 @@ router.post("/login", async (req, res) => {
     }
 
     req.session.userId = user._id;
-    req.flash("success", "Welcome back.");
+    
+    if(user) {
+    req.session.user = user;
     res.redirect("/listings");
+    }
 });
 
 // Logout user

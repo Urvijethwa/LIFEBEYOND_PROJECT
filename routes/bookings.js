@@ -53,7 +53,7 @@ router.post("/listings/:id/book", isLoggedIn, async (req, res) => {
     });
 
     await booking.save();
-
+    res.redirect(`/bookings/${booking._id}/pay`);
     req.flash("success", "Booking request sent successfully.");
     res.redirect("/my-bookings");
 });

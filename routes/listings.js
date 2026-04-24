@@ -4,6 +4,7 @@ const Listing = require("../models/listing");
 const User = require("../models/user");
 const { isLoggedIn, isOwner, validateListing } = require("../middleware");
 const mongoose = require("mongoose");
+const Booking = require("../models/booking");
 
 
 //geocoding - longtude latitude 
@@ -351,18 +352,18 @@ router.get("/:id", async (req, res) => {
 
     let reviewSummary = "No review summary available yet.";
 
-if (listing.reviews.length > 0) {
-    const positiveReviews = listing.reviews.filter(r => r.rating >= 4).length;
-    const negativeReviews = listing.reviews.filter(r => r.rating <= 2).length;
+    if (listing.reviews.length > 0) {
+        const positiveReviews = listing.reviews.filter(r => r.rating >= 4).length;
+        const negativeReviews = listing.reviews.filter(r => r.rating <= 2).length;
 
-    if (positiveReviews > negativeReviews) {
-        reviewSummary = "Guests generally had a positive experience.";
-    } else if (negativeReviews > positiveReviews) {
-        reviewSummary = "Some guests reported issues with this property.";
-    } else {
-        reviewSummary = "Mixed reviews from guests.";
+        if (positiveReviews > negativeReviews) {
+            reviewSummary = "Guests generally had a positive experience.";
+        } else if (negativeReviews > positiveReviews) {
+            reviewSummary = "Some guests reported issues with this property.";
+        } else {
+            reviewSummary = "Mixed reviews from guests.";
+        }
     }
-}
 
     let nearbyListings = [];
 
@@ -392,12 +393,27 @@ if (listing.reviews.length > 0) {
             .slice(0, 4);
     }
 
+    let canReview = false;
+
+    if (req.session.userId) {
+        const paidBooking = await Booking.findOne({
+            listing: listing._id,
+            user: req.session.userId,
+            status: "paid"
+        });
+
+        if (paidBooking) {
+            canReview = true;
+        }
+    }
+
     res.render("listings/show", {
         listing,
         isSaved,
         averageRating,
         nearbyListings,
-        reviewSummary
+        reviewSummary,
+        canReview
     });
 });
 

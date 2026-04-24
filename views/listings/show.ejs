@@ -34,9 +34,8 @@
     <div class="action-buttons">
         <a href="/listings" class="btn secondary-btn">Back</a>
 
-        <% if(currentUser && listing.owner && currentUser.toString() !== listing.owner._id.toString()) { %>
+        <% if(currentUser && listing.owner && currentUser._id.toString() !== listing.owner._id.toString()) { %>
             <a href="/listings/<%= listing._id %>/enquiry" class="btn secondary-btn">Enquire</a>
-
             <a href="/listings/<%= listing._id %>/book" class="btn">Book Now</a>
 
             <% if(isSaved) { %>
@@ -50,7 +49,7 @@
             <% } %>
         <% } %>
 
-        <% if(currentUser && listing.owner && currentUser.toString() === listing.owner._id.toString()) { %>
+        <% if(currentUser && listing.owner && currentUser._id.toString() === listing.owner._id.toString()) { %>
             <a href="/listings/<%= listing._id %>/edit" class="btn">Edit</a>
 
             <form action="/listings/<%= listing._id %>?_method=DELETE" method="POST">
@@ -121,9 +120,9 @@
         </div>
     <% } %>
 
-    <h2>Reviews</h2>
+    <h2 id="reviews">Reviews</h2>
 
-    <% if(currentUser) { %>
+    <% if(canReview) { %>
         <form action="/listings/<%= listing._id %>/reviews" method="POST" class="listing-form">
             <div class="form-group">
                 <label for="rating">Rating</label>
@@ -144,12 +143,21 @@
 
             <button class="btn">Add Review</button>
         </form>
+    <% } else if(currentUser) { %>
+        <p class="location">
+            You can leave a review after completing a paid booking for this property.
+        </p>
+    <% } else { %>
+        <p class="location">
+            Login to book this property. Reviews can only be added after a completed booking.
+        </p>
     <% } %>
 
     <div class="review-container">
         <% for(let review of listing.reviews) { %>
             <div class="review-card">
-                <p><strong>Rating:</strong> 
+                <p>
+                    <strong>Rating:</strong> 
                     <% for(let i = 1; i <= 5; i++) { %>
                         <% if(i <= review.rating) { %>
                             ⭐
@@ -165,7 +173,7 @@
                     <p class="location">By: <%= review.author.username %></p>
                 <% } %>
 
-                <% if(currentUser && review.author && currentUser.toString() === review.author._id.toString()) { %>
+                <% if(currentUser && review.author && currentUser._id.toString() === review.author._id.toString()) { %>
                     <form action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE" method="POST">
                         <button class="btn delete-btn">Delete Review</button>
                     </form>

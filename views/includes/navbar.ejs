@@ -9,12 +9,20 @@
         <a href="/listings">Home</a>
 
         <% if(currentUser) { %>
-            <a href="/listings/new">Add Listing</a>
-            <a href="/listings/my/listings">My Listings</a>
-            <a href="/wishlist">Wishlist</a>
-            <a href="/my-bookings">My Bookings</a>
-            <a href="/owner/bookings">Booking Requests</a>
+
+            <% if(currentUser.role === "host") { %>
+                <a href="/listings/new">Add Listing</a>
+                <a href="/listings/my/listings">My Listings</a>
+                <a href="/owner/bookings">Booking Requests</a>
+            <% } %>
+
+            <% if(currentUser.role === "guest") { %>
+                <a href="/wishlist">Wishlist</a>
+                <a href="/my-bookings">My Bookings</a>
+            <% } %>
+
             <a href="/logout">Logout</a>
+
         <% } else { %>
             <a href="/register">Register</a>
             <a href="/login">Login</a>

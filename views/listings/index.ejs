@@ -1,55 +1,67 @@
 <% layout("layouts/boilerplate") %>
-<% if(loggedInUser) { %>
+
+<% if(currentUser) { %>
     <div class="logged-user-box">
-        Hello, <strong><%= loggedInUser.username %></strong> 
+        Hello, <strong><%= currentUser.username %></strong>
     </div>
 <% } %>
 
 <div class="page-header">
     <div>
         <h1>All Listings</h1>
-        <p class="location">Explore stylish stays, unique locations, and travel-ready accommodation.</p>
+        <p class="location">
+            Explore stylish stays, unique locations, and travel-ready accommodation.
+        </p>
     </div>
 
-    <% if(currentUser) { %>
+    <% if(currentUser && currentUser.role === "host") { %>
         <a href="/listings/new" class="btn">Add New Listing</a>
     <% } %>
 </div>
 
-<form action="/listings" method="GET" class="search-form">
-    <div class="search-group">
-        <input 
-            type="text" 
-            name="search" 
-            placeholder="Search by title"
-            value="<%= search || '' %>"
-        >
+<!-- ✅ SHOW FILTER ONLY FOR GUESTS / NOT LOGGED IN -->
+<% if(!currentUser || currentUser.role === "guest") { %>
+    <form action="/listings" method="GET" class="search-form">
+        <div class="search-group">
+            <input 
+                type="text" 
+                name="search" 
+                placeholder="Search by title"
+                value="<%= search || '' %>"
+            >
 
-        <input 
-            type="text" 
-            name="location" 
-            placeholder="Search by location"
-            value="<%= location || '' %>"
-        >
+            <input 
+                type="text" 
+                name="location" 
+                placeholder="Search by location"
+                value="<%= location || '' %>"
+            >
 
-        <input 
-            type="number" 
-            name="maxPrice" 
-            placeholder="Max price"
-            value="<%= maxPrice || '' %>"
-        >
+            <input 
+                type="number" 
+                name="maxPrice" 
+                placeholder="Max price"
+                value="<%= maxPrice || '' %>"
+            >
 
-        <select name="sort" class="sort-select">
-            <option value="">Sort By</option>
-            <option value="priceLowHigh" <%= sort === "priceLowHigh" ? "selected" : "" %>>Price: Low to High</option>
-            <option value="priceHighLow" <%= sort === "priceHighLow" ? "selected" : "" %>>Price: High to Low</option>
-            <option value="titleAZ" <%= sort === "titleAZ" ? "selected" : "" %>>Title: A to Z</option>
-        </select>
+            <select name="sort" class="sort-select">
+                <option value="">Sort By</option>
+                <option value="priceLowHigh" <%= sort === "priceLowHigh" ? "selected" : "" %>>
+                    Price: Low to High
+                </option>
+                <option value="priceHighLow" <%= sort === "priceHighLow" ? "selected" : "" %>>
+                    Price: High to Low
+                </option>
+                <option value="titleAZ" <%= sort === "titleAZ" ? "selected" : "" %>>
+                    Title: A to Z
+                </option>
+            </select>
 
-        <button type="submit" class="btn">Search</button>
-        <a href="/listings" class="btn secondary-btn">Reset</a>
-    </div>
-</form>
+            <button type="submit" class="btn">Search</button>
+            <a href="/listings" class="btn secondary-btn">Reset</a>
+        </div>
+    </form>
+<% } %>
 
 <div class="card-container">
     <% for(let listing of listings) { %>
@@ -61,9 +73,10 @@
                     class="card-img"
                     onerror="this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000'"
                 >
+
                 <div class="card-body">
                     <h3><%= listing.title %></h3>
-                
+
                     <% 
                         let averageRating = 0;
                         if (listing.reviews.length > 0) {
@@ -71,16 +84,20 @@
                             averageRating = (total / listing.reviews.length).toFixed(1);
                         }
                     %>
-                
+
                     <% if(listing.reviews.length > 0) { %>
-                        <p class="card-rating">⭐ <strong><%= averageRating %></strong> / 5</p>
+                        <p class="card-rating">
+                            ⭐ <strong><%= averageRating %></strong> / 5
+                        </p>
                     <% } else { %>
                         <p class="card-rating">No ratings yet</p>
                     <% } %>
-                
+
                     <p><%= listing.description %></p>
                     <p class="price">£<%= listing.price %></p>
-                    <p class="location"><%= listing.location %>, <%= listing.country %></p>
+                    <p class="location">
+                        <%= listing.location %>, <%= listing.country %>
+                    </p>
                 </div>
             </div>
         </a>

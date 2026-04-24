@@ -1,4 +1,5 @@
 require("dotenv").config();
+
 const express = require("express");
 const path = require("path");
 const ejsMate = require("ejs-mate");
@@ -13,6 +14,7 @@ const userRoutes = require("./routes/users");
 const wishlistRoutes = require("./routes/wishlist");
 const reviewRoutes = require("./routes/reviews");
 const bookingRoutes = require("./routes/bookings");
+const User = require("./models/user");
 
 const app = express();
 
@@ -50,7 +52,7 @@ const sessionOptions = {
     }
 };
 
-// Middleware
+// Basic middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
@@ -63,18 +65,19 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 // Global locals
-const User = require("./models/user");
-
 app.use(async (req, res, next) => {
-    res.locals.currentUser = req.session.userId;
-    res.locals.loggedInUser = null;
-
     if (req.session.userId) {
-        res.locals.loggedInUser = await User.findById(req.session.userId);
+        const user = await User.findById(req.session.userId);
+        res.locals.currentUser = user;
+        res.locals.loggedInUser = user;
+    } else {
+        res.locals.currentUser = null;
+        res.locals.loggedInUser = null;
     }
 
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
+
     next();
 });
 

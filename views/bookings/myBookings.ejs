@@ -50,11 +50,15 @@
                         <a href="/bookings/<%= booking._id %>/payment" class="btn">Pay Now</a>
                     <% } %>
 
-                    <% if(booking.status === "paid") { %>
-                        <p class="success-message flash-message">
-                            Payment completed. Booking confirmed.
-                        </p>
-                    <% } %>
+                    <% if(booking.status === "paid" && booking.listing) { %>
+            <div class="success-message booking-paid-box">
+                Payment completed. Booking confirmed.
+            </div>
+
+            <a href="/listings/<%= booking.listing._id %>#reviews" class="btn">
+                Leave Review
+            </a>
+            <% } %>
 
                     <% if(booking.status !== "cancelled" && booking.status !== "paid") { %>
                         <form action="/bookings/<%= booking._id %>/cancel" method="POST">

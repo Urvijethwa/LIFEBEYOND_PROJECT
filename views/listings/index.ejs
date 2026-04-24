@@ -1,4 +1,9 @@
 <% layout("layouts/boilerplate") %>
+<% if(loggedInUser) { %>
+    <div class="logged-user-box">
+        Hello, <strong><%= loggedInUser.username %></strong> 
+    </div>
+<% } %>
 
 <div class="page-header">
     <div>

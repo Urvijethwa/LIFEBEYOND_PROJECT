@@ -63,8 +63,16 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 // Global locals
-app.use((req, res, next) => {
+const User = require("./models/user");
+
+app.use(async (req, res, next) => {
     res.locals.currentUser = req.session.userId;
+    res.locals.loggedInUser = null;
+
+    if (req.session.userId) {
+        res.locals.loggedInUser = await User.findById(req.session.userId);
+    }
+
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
     next();

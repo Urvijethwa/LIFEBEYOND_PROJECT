@@ -15,24 +15,50 @@
     <div class="card-container">
         <% for(let booking of bookings) { %>
             <div class="card">
-                <img 
-                    src="<%= booking.listing.image %>" 
-                    alt="<%= booking.listing.title %>" 
-                    class="card-img"
-                >
+                <% if(booking.listing && booking.listing.image) { %>
+                    <img 
+                        src="<%= booking.listing.image %>" 
+                        alt="<%= booking.listing.title %>" 
+                        class="card-img"
+                        onerror="this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000'"
+                    >
+                <% } %>
 
                 <div class="card-body">
-                    <h3><%= booking.listing.title %></h3>
-                    <p class="location"><%= booking.listing.location %>, <%= booking.listing.country %></p>
-                    <p><strong>Check-in:</strong> <%= booking.checkIn.toDateString() %></p>
-                    <p><strong>Check-out:</strong> <%= booking.checkOut.toDateString() %></p>
-                    <p><strong>Guests:</strong> <%= booking.guests %></p>
-                    <p class="price">Estimated Total: £<%= booking.totalPrice %></p>
+                    <h3><%= booking.listing ? booking.listing.title : "Listing unavailable" %></h3>
+
+                    <% if(booking.listing) { %>
+                        <p class="location"><%= booking.listing.location %>, <%= booking.listing.country %></p>
+                    <% } %>
+
                     <p><strong>Status:</strong> <%= booking.status %></p>
 
-                    <% if(booking.status !== "cancelled") { %>
+                    <% if(booking.message) { %>
+                        <p><strong>Message:</strong> <%= booking.message %></p>
+                    <% } %>
+
+                    <% if(booking.checkIn && booking.checkOut) { %>
+                        <p><strong>Check-in:</strong> <%= booking.checkIn.toDateString() %></p>
+                        <p><strong>Check-out:</strong> <%= booking.checkOut.toDateString() %></p>
+                        <p><strong>Guests:</strong> <%= booking.guests %></p>
+                        <p class="price">Estimated Total: £<%= booking.totalPrice %></p>
+                    <% } else { %>
+                        <p class="location">This is an enquiry only. No booking dates selected.</p>
+                    <% } %>
+
+                    <% if(booking.status === "approved" && booking.checkIn && booking.checkOut) { %>
+                        <a href="/bookings/<%= booking._id %>/payment" class="btn">Pay Now</a>
+                    <% } %>
+
+                    <% if(booking.status === "paid") { %>
+                        <p class="success-message flash-message">
+                            Payment completed. Booking confirmed.
+                        </p>
+                    <% } %>
+
+                    <% if(booking.status !== "cancelled" && booking.status !== "paid") { %>
                         <form action="/bookings/<%= booking._id %>/cancel" method="POST">
-                            <button class="btn delete-btn">Cancel Booking</button>
+                            <button class="btn delete-btn">Cancel</button>
                         </form>
                     <% } %>
                 </div>

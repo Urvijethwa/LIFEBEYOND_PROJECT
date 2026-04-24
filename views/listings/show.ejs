@@ -11,15 +11,18 @@
     <h1><%= listing.title %></h1>
 
     <% if(listing.reviews.length > 0) { %>
-        <p class="rating-summary">⭐ <strong><%= averageRating %></strong> / 5 
-        (<%= listing.reviews.length %> review<%= listing.reviews.length > 1 ? "s" : "" %>)</p>
+        <p class="rating-summary">
+            ⭐ <strong><%= averageRating %></strong> / 5 
+            (<%= listing.reviews.length %> review<%= listing.reviews.length > 1 ? "s" : "" %>)
+        </p>
     <% } else { %>
         <p class="rating-summary">No ratings yet</p>
     <% } %>
-    
+
     <% if(listing.reviews.length > 0) { %>
         <p class="review-summary"><%= reviewSummary %></p>
     <% } %>
+
     <p><%= listing.description %></p>
     <p class="price"><strong>£<%= listing.price %></strong></p>
     <p class="location"><%= listing.location %>, <%= listing.country %></p>
@@ -29,32 +32,35 @@
     <% } %>
 
     <div class="action-buttons">
-    <a href="/listings" class="btn secondary-btn">Back</a>
+        <a href="/listings" class="btn secondary-btn">Back</a>
 
-    <% if(currentUser && listing.owner && currentUser.toString() !== listing.owner._id.toString()) { %>
-        <a href="/listings/<%= listing._id %>/book" class="btn">Book Now</a>
+        <% if(currentUser && listing.owner && currentUser.toString() !== listing.owner._id.toString()) { %>
+            <a href="/listings/<%= listing._id %>/enquiry" class="btn secondary-btn">Enquire</a>
 
-        <% if(isSaved) { %>
-            <form action="/listings/<%= listing._id %>/remove-wishlist" method="POST">
-                <button class="btn secondary-btn">Remove from Wishlist</button>
-            </form>
-        <% } else { %>
-            <form action="/listings/<%= listing._id %>/wishlist" method="POST">
-                <button class="btn">Add to Wishlist</button>
+            <a href="/listings/<%= listing._id %>/book" class="btn">Book Now</a>
+
+            <% if(isSaved) { %>
+                <form action="/listings/<%= listing._id %>/remove-wishlist" method="POST">
+                    <button class="btn secondary-btn">Remove from Wishlist</button>
+                </form>
+            <% } else { %>
+                <form action="/listings/<%= listing._id %>/wishlist" method="POST">
+                    <button class="btn">Add to Wishlist</button>
+                </form>
+            <% } %>
+        <% } %>
+
+        <% if(currentUser && listing.owner && currentUser.toString() === listing.owner._id.toString()) { %>
+            <a href="/listings/<%= listing._id %>/edit" class="btn">Edit</a>
+
+            <form action="/listings/<%= listing._id %>?_method=DELETE" method="POST">
+                <button class="btn delete-btn">Delete</button>
             </form>
         <% } %>
-    <% } %>
-
-    <% if(currentUser && listing.owner && currentUser.toString() === listing.owner._id.toString()) { %>
-        <a href="/listings/<%= listing._id %>/edit" class="btn">Edit</a>
-
-        <form action="/listings/<%= listing._id %>?_method=DELETE" method="POST">
-            <button class="btn delete-btn">Delete</button>
-        </form>
-    <% } %>
-</div>
+    </div>
 
     <hr style="margin: 30px 0;">
+
     <% if(listing.latitude != null && listing.longitude != null) { %>
         <div class="map-section">
             <h2>Location on Map</h2>
@@ -65,20 +71,20 @@
                 data-title="<%= listing.title %>"
             ></div>
         </div>
-    
+
         <script>
             window.addEventListener("load", function () {
                 const mapElement = document.getElementById("map");
                 const lat = parseFloat(mapElement.dataset.lat);
                 const lng = parseFloat(mapElement.dataset.lng);
                 const title = mapElement.dataset.title;
-    
+
                 const map = L.map("map").setView([lat, lng], 13);
-    
+
                 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
                     attribution: "&copy; OpenStreetMap contributors"
                 }).addTo(map);
-    
+
                 L.marker([lat, lng])
                     .addTo(map)
                     .bindPopup(title)
@@ -89,9 +95,9 @@
 
     <% if(nearbyListings && nearbyListings.length > 0) { %>
         <hr style="margin: 30px 0;">
-    
+
         <h2>Nearby Listings</h2>
-    
+
         <div class="card-container">
             <% for(let nearby of nearbyListings) { %>
                 <a href="/listings/<%= nearby._id %>" class="listing-link">
@@ -152,6 +158,7 @@
                         <% } %>
                     <% } %>
                 </p>
+
                 <p><%= review.comment %></p>
 
                 <% if(review.author) { %>

@@ -1,0 +1,15 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="listing-form">
+    <h2>Send Enquiry</h2>
+
+    <form action="/listings/<%= listing._id %>/enquiry" method="POST">
+
+        <div class="form-group">
+            <label>Message</label>
+            <textarea name="message" required></textarea>
+        </div>
+
+        <button class="btn">Send Enquiry</button>
+    </form>
+</div>

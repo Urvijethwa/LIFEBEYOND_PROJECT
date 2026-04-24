@@ -18,28 +18,25 @@ const bookingSchema = new Schema({
         required: true
     },
     checkIn: {
-        type: Date,
-        required: true
+        type: Date
     },
     checkOut: {
-        type: Date,
-        required: true
+        type: Date
     },
     guests: {
         type: Number,
-        required: true,
         min: 1
     },
     totalPrice: {
         type: Number,
-        required: true
+        default: 0
     },
     message: {
         type: String
     },
     status: {
         type: String,
-        enum: ["pending", "cancelled"],
+        enum: ["enquiry", "pending", "approved", "rejected", "cancelled", "paid"],
         default: "pending"
     },
     createdAt: {

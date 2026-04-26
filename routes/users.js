@@ -13,6 +13,20 @@ router.get("/register", (req, res) => {
 router.post("/register", validateUser, async (req, res) => {
     try {
         const { username, email, password, role } = req.body;
+
+const passwordRegex = /^(?=.*[0-9])(?=.*[^A-Za-z0-9]).{6,}$/;
+        if (!passwordRegex.test(password)) {
+            req.flash("error", "Password must be at least 6 characters and include a number and special character.");
+            return res.redirect("/register");
+        }
+
+        const existingUser = await User.findOne({ email });
+
+        if (existingUser) {
+            req.flash("error", "Email already registered.");
+            return res.redirect("/register");
+        }
+
         const hashedPassword = await bcrypt.hash(password, 12);
 
         const newUser = new User({
@@ -23,11 +37,16 @@ router.post("/register", validateUser, async (req, res) => {
         });
 
         await newUser.save();
+
         req.session.userId = newUser._id;
+        req.session.user = newUser;
+
         req.flash("success", "Welcome to LifeBeyond.");
         res.redirect("/listings");
+
     } catch (err) {
-        req.flash("error", "User already exists or registration failed.");
+        console.log(err);
+        req.flash("error", "Registration failed. Please try again.");
         res.redirect("/register");
     }
 });
@@ -39,27 +58,33 @@ router.get("/login", (req, res) => {
 
 // Login user
 router.post("/login", async (req, res) => {
-    const { email, password } = req.body;
+    try {
+        const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+        const user = await User.findOne({ email });
 
-    if (!user) {
-        req.flash("error", "Invalid email or password.");
-        return res.redirect("/login");
-    }
+        if (!user) {
+            req.flash("error", "Invalid email or password.");
+            return res.redirect("/login");
+        }
 
-    const validPassword = await bcrypt.compare(password, user.password);
+        const validPassword = await bcrypt.compare(password, user.password);
 
-    if (!validPassword) {
-        req.flash("error", "Invalid email or password.");
-        return res.redirect("/login");
-    }
+        if (!validPassword) {
+            req.flash("error", "Invalid email or password.");
+            return res.redirect("/login");
+        }
 
-    req.session.userId = user._id;
-    
-    if(user) {
-    req.session.user = user;
-    res.redirect("/listings");
+        req.session.userId = user._id;
+        req.session.user = user;
+
+        req.flash("success", "Welcome back.");
+        res.redirect("/listings");
+
+    } catch (err) {
+        console.log(err);
+        req.flash("error", "Login failed. Please try again.");
+        res.redirect("/login");
     }
 });
 

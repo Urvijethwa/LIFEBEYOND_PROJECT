@@ -136,7 +136,6 @@ router.get("/assistant/results", async (req, res) => {
     let searchLng = null;
     let weatherSummary = null;
 
-    // Step 1: Convert preferred location into coordinates
     try {
         const geoResponse = await axios.get(
             "https://geocoding-api.open-meteo.com/v1/search",
@@ -158,7 +157,6 @@ router.get("/assistant/results", async (req, res) => {
         console.log("Assistant geocoding error:", err.message);
     }
 
-    // Step 2: Get weather for that location
     if (searchLat != null && searchLng != null) {
         try {
             const weatherResponse = await axios.get(
@@ -181,55 +179,51 @@ router.get("/assistant/results", async (req, res) => {
 
                 let weatherText = "Unknown weather";
 
-                if ([0, 1].includes(code)) {
-                    weatherText = "Clear or mostly clear";
-                } else if ([2, 3].includes(code)) {
-                    weatherText = "Cloudy";
-                } else if ([45, 48].includes(code)) {
-                    weatherText = "Foggy";
-                } else if ([51, 53, 55, 61, 63, 65, 80, 81, 82].includes(code)) {
-                    weatherText = "Rainy";
-                } else if ([71, 73, 75, 85, 86].includes(code)) {
-                    weatherText = "Snowy";
-                } else if ([95, 96, 99].includes(code)) {
-                    weatherText = "Stormy";
-                }
+                if ([0, 1].includes(code)) weatherText = "Clear or mostly clear";
+                else if ([2, 3].includes(code)) weatherText = "Cloudy";
+                else if ([45, 48].includes(code)) weatherText = "Foggy";
+                else if ([51, 53, 55, 61, 63, 65, 80, 81, 82].includes(code)) weatherText = "Rainy";
+                else if ([71, 73, 75, 85, 86].includes(code)) weatherText = "Snowy";
+                else if ([95, 96, 99].includes(code)) weatherText = "Stormy";
 
-                weatherSummary = {
-                    code,
-                    weatherText,
-                    maxTemp,
-                    minTemp
-                };
+                weatherSummary = { code, weatherText, maxTemp, minTemp };
             }
         } catch (err) {
             console.log("Weather API error:", err.message);
         }
     }
 
-    // Step 3: Score listings
-    const allListings = await Listing.find({});
+    const allListings = await Listing.find({
+        latitude: { $ne: null },
+        longitude: { $ne: null }
+    });
 
     const recommendations = allListings
         .map((listing) => {
             let score = 0;
-            let distance = null;
             let explanation = [];
 
-            // Budget scoring
+            const distance = getDistanceInKm(
+                searchLat,
+                searchLng,
+                listing.latitude,
+                listing.longitude
+            );
+
+            if (distance > Number(radius)) {
+                return null;
+            }
+
+            score += 50;
+            explanation.push("within your preferred distance");
+
             if (listing.price <= Number(budget)) {
                 score += 40;
                 explanation.push("within your budget");
-            } else {
-                const difference = listing.price - Number(budget);
-                if (difference <= 200) {
-                    score += 20;
-                    explanation.push("slightly above your budget");
-                }
             }
 
-            // Country match
             if (
+                country &&
                 listing.country &&
                 listing.country.toLowerCase().includes(country.toLowerCase())
             ) {
@@ -237,77 +231,34 @@ router.get("/assistant/results", async (req, res) => {
                 explanation.push("matches your country preference");
             }
 
-            // Distance scoring
-            if (
-                searchLat != null &&
-                searchLng != null &&
-                listing.latitude != null &&
-                listing.longitude != null
-            ) {
-                distance = getDistanceInKm(
-                    searchLat,
-                    searchLng,
-                    listing.latitude,
-                    listing.longitude
-                );
-
-                if (distance <= Number(radius)) {
-                    score += 35;
-                    explanation.push("within your preferred distance");
-                } else if (distance <= Number(radius) + 20) {
-                    score += 15;
-                    explanation.push("close to your preferred area");
-                }
-            }
-
-            // Stay type scoring
-            if (stayType === "short" && listing.price <= Number(budget)) {
-                score += 10;
-                explanation.push("good for a short stay budget");
-            }
-
-            if (stayType === "long" && listing.price <= Number(budget) * 0.9) {
-                score += 10;
-                explanation.push("more suitable for longer stays");
-            }
-
-            // Guests scoring
-            if (Number(guests) <= 2) {
+            if (stayType === "short") {
                 score += 5;
-            } else if (Number(guests) <= 4) {
-                score += 8;
-            } else {
-                score += 10;
+                explanation.push("suitable for a short stay");
             }
 
-            // Weather-aware bonus
-            if (weatherSummary) {
-                if (
-                    ["Clear or mostly clear", "Cloudy"].includes(weatherSummary.weatherText) &&
-                    distance != null &&
-                    distance <= Number(radius)
-                ) {
-                    score += 5;
-                    explanation.push("weather is suitable for your chosen area");
-                }
+            if (stayType === "long") {
+                score += 5;
+                explanation.push("suitable for a longer stay");
+            }
 
-                if (
-                    ["Rainy", "Stormy", "Foggy", "Snowy"].includes(weatherSummary.weatherText) &&
-                    listing.price <= Number(budget)
-                ) {
-                    score += 5;
-                    explanation.push("good value despite current weather conditions");
-                }
+            if (Number(guests) >= 3) {
+                score += 5;
+                explanation.push("suitable for your guest number");
+            }
+
+            if (weatherSummary) {
+                score += 5;
+                explanation.push("includes current weather context");
             }
 
             return {
                 ...listing.toObject(),
                 score,
-                distance: distance != null ? distance.toFixed(1) : null,
+                distance: distance.toFixed(1),
                 explanation
             };
         })
-        .filter((listing) => listing.score > 0)
+        .filter((listing) => listing !== null)
         .sort((a, b) => b.score - a.score)
         .slice(0, 6);
 
@@ -436,7 +387,6 @@ router.get("/:id/edit", isLoggedIn, isOwner, async (req, res) => {
     res.render("listings/edit", { listing });
 });
 
-// Update listing
 // Update listing
 router.put("/:id", isLoggedIn, isOwner, validateListing, async (req, res) => {
     const { id } = req.params;

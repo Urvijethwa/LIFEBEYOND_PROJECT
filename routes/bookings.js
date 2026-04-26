@@ -53,9 +53,9 @@ router.post("/listings/:id/book", isLoggedIn, async (req, res) => {
     });
 
     await booking.save();
-    res.redirect(`/bookings/${booking._id}/pay`);
-    req.flash("success", "Booking request sent successfully.");
-    res.redirect("/my-bookings");
+
+req.flash("success", "Booking created. Continue to payment.");
+return res.redirect(`/bookings/${booking._id}/pay`);
 });
 
 // Show enquiry form
@@ -201,7 +201,7 @@ router.get("/bookings/:id/payment", isLoggedIn, async (req, res) => {
 });
 
 // Pay booking
-router.post("/bookings/:id/pay", isLoggedIn, async (req, res) => {
+router.get("/bookings/:id/pay", isLoggedIn, async (req, res) => {
     const booking = await Booking.findById(req.params.id).populate("listing");
 
     if (!booking) {
@@ -236,7 +236,43 @@ router.post("/bookings/:id/pay", isLoggedIn, async (req, res) => {
     res.redirect(session.url);
 });
 
-//stripe
+// Stripe checkout page
+router.get("/bookings/:id/pay", isLoggedIn, async (req, res) => {
+    const booking = await Booking.findById(req.params.id).populate("listing");
+
+    if (!booking) {
+        req.flash("error", "Booking not found.");
+        return res.redirect("/my-bookings");
+    }
+
+    if (!booking.user.equals(req.session.userId)) {
+        req.flash("error", "You do not have permission.");
+        return res.redirect("/my-bookings");
+    }
+
+    const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        mode: "payment",
+        line_items: [
+            {
+                price_data: {
+                    currency: "gbp",
+                    product_data: {
+                        name: booking.listing.title
+                    },
+                    unit_amount: booking.totalPrice * 100
+                },
+                quantity: 1
+            }
+        ],
+        success_url: `http://localhost:8080/bookings/${booking._id}/success`,
+        cancel_url: `http://localhost:8080/my-bookings`
+    });
+
+    res.redirect(session.url);
+});
+
+// Stripe success route
 router.get("/bookings/:id/success", isLoggedIn, async (req, res) => {
     const booking = await Booking.findById(req.params.id);
 

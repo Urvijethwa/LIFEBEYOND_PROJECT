@@ -437,6 +437,7 @@ router.get("/:id/edit", isLoggedIn, isOwner, async (req, res) => {
 });
 
 // Update listing
+// Update listing
 router.put("/:id", isLoggedIn, isOwner, validateListing, async (req, res) => {
     const { id } = req.params;
 
@@ -445,7 +446,33 @@ router.put("/:id", isLoggedIn, isOwner, validateListing, async (req, res) => {
         return res.redirect("/listings");
     }
 
-    await Listing.findByIdAndUpdate(id, req.body);
+    const updatedData = { ...req.body };
+
+    try {
+        const response = await axios.get(
+            "https://nominatim.openstreetmap.org/search",
+            {
+                params: {
+                    format: "json",
+                    q: `${updatedData.location}, ${updatedData.country}`,
+                    limit: 1
+                },
+                headers: {
+                    "User-Agent": "LifeBeyondFinalYearProject/1.0 (student project)"
+                }
+            }
+        );
+
+        if (response.data.length > 0) {
+            updatedData.latitude = parseFloat(response.data[0].lat);
+            updatedData.longitude = parseFloat(response.data[0].lon);
+        }
+    } catch (err) {
+        console.log("Update geocoding error:", err.response?.status || err.message);
+    }
+
+    await Listing.findByIdAndUpdate(id, updatedData, { runValidators: true });
+
     req.flash("success", "Listing updated successfully.");
     res.redirect(`/listings/${id}`);
 });

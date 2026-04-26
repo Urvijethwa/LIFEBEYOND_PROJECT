@@ -40,12 +40,16 @@
 
             <% if(isSaved) { %>
                 <form action="/listings/<%= listing._id %>/remove-wishlist" method="POST">
-                    <button class="btn secondary-btn">Remove from Wishlist</button>
-                </form>
+    <button class="wishlist-btn active">
+        <i class="fa-solid fa-heart"></i>
+    </button>
+    </form>
             <% } else { %>
                 <form action="/listings/<%= listing._id %>/wishlist" method="POST">
-                    <button class="btn">Add to Wishlist</button>
-                </form>
+    <button class="wishlist-btn">
+        <i class="fa-regular fa-heart"></i>
+    </button>
+    </form>
             <% } %>
         <% } %>
 

@@ -19,6 +19,15 @@
     <% } %>
 </div>
 
+<% if(!currentUser) { %>
+    <div class="info-box">
+        <p>
+            Please <a href="/login">login</a> or 
+            <a href="/register">create an account</a> to book properties, save favourites, and leave reviews.
+        </p>
+    </div>
+<% } %>
+
 <!-- ✅ SHOW FILTER ONLY FOR GUESTS / NOT LOGGED IN -->
 <% if(!currentUser || currentUser.role === "guest") { %>
     <form action="/listings" method="GET" class="search-form">

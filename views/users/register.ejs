@@ -1,14 +1,17 @@
 <% layout("layouts/boilerplate") %>
 
 <h1 class="form-heading">Register</h1>
-<div class="form-group">
-    <label for="role">Account Type</label>
-    <select name="role" id="role" required>
-        <option value="guest">Guest - I want to book stays</option>
-        <option value="host">Host - I want to list properties</option>
-    </select>
-</div>
+
 <form action="/register" method="POST" class="listing-form">
+    <!-- Account type must be inside the form so it gets sent to backend -->
+    <div class="form-group">
+        <label for="role">Account Type</label>
+        <select name="role" id="role" required>
+            <option value="guest">Guest - I want to book stays</option>
+            <option value="host">Host - I want to list properties</option>
+        </select>
+    </div>
+
     <div class="form-group">
         <label for="username">Username</label>
         <input name="username" id="username" required>

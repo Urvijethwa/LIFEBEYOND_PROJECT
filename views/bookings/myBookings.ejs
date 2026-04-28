@@ -84,7 +84,7 @@
                     <% } %>
 
                     <!-- ========================= -->
-                    <!-- 💳 PAYMENT FEATURE -->
+                    <!-- PAYMENT FEATURE -->
                     <!-- ========================= -->
 
                     <% if(booking.status === "approved" && booking.checkIn && booking.checkOut) { %>
@@ -94,7 +94,7 @@
                     <% } %>
 
                     <!-- ========================= -->
-                    <!-- ✅ SUCCESS + REVIEW FEATURE -->
+                    <!-- SUCCESS + REVIEW FEATURE -->
                     <!-- ========================= -->
 
                     <% if(booking.status === "paid" && booking.listing) { %>
@@ -111,7 +111,7 @@
                     <% } %>
 
                     <!-- ========================= -->
-                    <!-- ❌ CANCEL BOOKING FEATURE -->
+                    <!-- CANCEL BOOKING FEATURE -->
                     <!-- ========================= -->
 
                     <% if(booking.status !== "cancelled" && booking.status !== "paid") { %>

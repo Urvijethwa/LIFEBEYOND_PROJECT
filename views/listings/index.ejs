@@ -4,9 +4,9 @@
 <!-- Show logged-in user -->
 <% if(currentUser) { %>
     <div class="logged-user-box">
-        Hello, <strong><%= currentUser.username %></strong>
+        Hello, <strong><%= currentUser.username %></strong> 
+        (<%= currentUser.role === "host" ? "Host" : "Guest" %>)
     </div>
-    <!-- Displays welcome message if user is logged in -->
 <% } %>
 
 <!-- Page heading -->

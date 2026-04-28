@@ -1,11 +1,15 @@
 <% layout("layouts/boilerplate") %>
+<!-- Uses the main layout (navbar, footer, styling consistency) -->
 
+<!-- Show logged-in user -->
 <% if(currentUser) { %>
     <div class="logged-user-box">
         Hello, <strong><%= currentUser.username %></strong>
     </div>
+    <!-- Displays welcome message if user is logged in -->
 <% } %>
 
+<!-- Page heading -->
 <div class="page-header">
     <div>
         <h1>All Listings</h1>
@@ -14,11 +18,13 @@
         </p>
     </div>
 
+    <!-- Only hosts can add listings -->
     <% if(currentUser && currentUser.role === "host") { %>
         <a href="/listings/new" class="btn">Add New Listing</a>
     <% } %>
 </div>
 
+<!-- If user is NOT logged in -->
 <% if(!currentUser) { %>
     <div class="info-box">
         <p>
@@ -26,12 +32,15 @@
             <a href="/register">create an account</a> to book properties, save favourites, and leave reviews.
         </p>
     </div>
+    <!-- Encourages user to sign in -->
 <% } %>
 
-<!-- ✅ SHOW FILTER ONLY FOR GUESTS / NOT LOGGED IN -->
+<!-- Search + filter (only for guests or not logged in) -->
 <% if(!currentUser || currentUser.role === "guest") { %>
     <form action="/listings" method="GET" class="search-form">
         <div class="search-group">
+
+            <!-- Search by title -->
             <input 
                 type="text" 
                 name="search" 
@@ -39,6 +48,7 @@
                 value="<%= search || '' %>"
             >
 
+            <!-- Search by location -->
             <input 
                 type="text" 
                 name="location" 
@@ -46,6 +56,7 @@
                 value="<%= location || '' %>"
             >
 
+            <!-- Max price filter -->
             <input 
                 type="number" 
                 name="maxPrice" 
@@ -53,39 +64,56 @@
                 value="<%= maxPrice || '' %>"
             >
 
+            <!-- Sorting dropdown -->
             <select name="sort" class="sort-select">
                 <option value="">Sort By</option>
+
                 <option value="priceLowHigh" <%= sort === "priceLowHigh" ? "selected" : "" %>>
                     Price: Low to High
                 </option>
+
                 <option value="priceHighLow" <%= sort === "priceHighLow" ? "selected" : "" %>>
                     Price: High to Low
                 </option>
+
                 <option value="titleAZ" <%= sort === "titleAZ" ? "selected" : "" %>>
                     Title: A to Z
                 </option>
             </select>
 
+            <!-- Submit -->
             <button type="submit" class="btn">Search</button>
+
+            <!-- Reset filters -->
             <a href="/listings" class="btn secondary-btn">Reset</a>
         </div>
     </form>
 <% } %>
 
+<!-- Listings grid -->
 <div class="card-container">
+
     <% for(let listing of listings) { %>
+        <!-- Clickable card -->
         <a href="/listings/<%= listing._id %>" class="listing-link">
+
             <div class="card">
+
+                <!-- Listing image -->
                 <img 
                     src="<%= listing.image %>" 
                     alt="<%= listing.title %>" 
                     class="card-img"
                     onerror="this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000'"
                 >
+                <!-- Fallback image if broken -->
 
                 <div class="card-body">
+
+                    <!-- Title -->
                     <h3><%= listing.title %></h3>
 
+                    <!-- Calculate average rating -->
                     <% 
                         let averageRating = 0;
                         if (listing.reviews.length > 0) {
@@ -94,6 +122,7 @@
                         }
                     %>
 
+                    <!-- Show rating -->
                     <% if(listing.reviews.length > 0) { %>
                         <p class="card-rating">
                             ⭐ <strong><%= averageRating %></strong> / 5
@@ -102,17 +131,25 @@
                         <p class="card-rating">No ratings yet</p>
                     <% } %>
 
+                    <!-- Description -->
                     <p><%= listing.description %></p>
+
+                    <!-- Price -->
                     <p class="price">£<%= listing.price %></p>
+
+                    <!-- Location -->
                     <p class="location">
                         <%= listing.location %>, <%= listing.country %>
                     </p>
+
                 </div>
             </div>
         </a>
     <% } %>
+
 </div>
 
+<!-- If no listings -->
 <% if(listings.length === 0) { %>
     <p>No listings found.</p>
 <% } %>

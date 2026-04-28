@@ -1,38 +1,84 @@
 <% layout("layouts/boilerplate") %>
+<!-- Using the main layout so styling, navbar, and footer stay consistent -->
 
 <h1 class="form-heading">Edit Listing</h1>
+<!-- Page title -->
 
+<!-- 
+    Form to update an existing listing
+    Uses method override (?_method=PUT) because HTML forms only support GET/POST
+-->
 <form action="/listings/<%= listing._id %>?_method=PUT" method="POST" class="listing-form">
+
+    <!-- Title field -->
     <div class="form-group">
         <label for="title">Title</label>
-        <input name="title" id="title" value="<%= listing.title %>" required>
+        <input 
+            name="title" 
+            id="title" 
+            value="<%= listing.title %>" 
+            required
+        >
+        <!-- Pre-filled with existing title -->
     </div>
 
+    <!-- Description field -->
     <div class="form-group">
         <label for="description">Description</label>
-        <textarea name="description" id="description" required><%= listing.description %></textarea>
+        <textarea 
+            name="description" 
+            id="description" 
+            required
+        ><%= listing.description %></textarea>
+        <!-- Existing description shown so user can edit -->
     </div>
 
+    <!-- Image URL -->
     <div class="form-group">
         <label for="image">Image URL</label>
-        <input name="image" id="image" value="<%= listing.image %>">
+        <input 
+            name="image" 
+            id="image" 
+            value="<%= listing.image %>"
+        >
+        <!-- Optional field (user can change image if needed) -->
     </div>
 
+    <!-- Price -->
     <div class="form-group">
         <label for="price">Price</label>
-        <input name="price" id="price" type="number" value="<%= listing.price %>" required>
+        <input 
+            name="price" 
+            id="price" 
+            type="number" 
+            value="<%= listing.price %>" 
+            required
+        >
+        <!-- Required to ensure valid listing -->
     </div>
 
+    <!-- Location -->
     <div class="form-group">
         <label for="location">Location</label>
-        <input name="location" id="location" value="<%= listing.location %>" required>
+        <input 
+            name="location" 
+            id="location" 
+            value="<%= listing.location %>" 
+            required
+        >
     </div>
 
+    <!-- Country -->
     <div class="form-group">
         <label for="country">Country</label>
-        <input name="country" id="country" value="<%= listing.country %>" required>
+        <input 
+            name="country" 
+            id="country" 
+            value="<%= listing.country %>" 
+            required
+        >
     </div>
 
-
+    <!-- Submit button -->
     <button type="submit" class="btn">Update Listing</button>
 </form>

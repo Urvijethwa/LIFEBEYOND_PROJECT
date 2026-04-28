@@ -1,23 +1,54 @@
 <% layout("layouts/boilerplate") %>
+<!-- Uses main layout for consistent design (navbar, footer, styling) -->
 
 <h1 class="form-heading">Holiday Recommender Assistant</h1>
+<!-- Page title explaining the feature -->
 
+<!-- 
+    Form sends user preferences to backend
+    GET /listings/assistant/results
+    We use GET because this is a search/recommendation request
+-->
 <form action="/listings/assistant/results" method="GET" class="listing-form">
+
+    <!-- User budget input -->
     <div class="form-group">
         <label for="budget">Maximum Budget (£)</label>
-        <input type="number" name="budget" id="budget" placeholder="Enter your budget" required>
+        <input 
+            type="number" 
+            name="budget" 
+            id="budget" 
+            placeholder="Enter your budget" 
+            required
+        >
+        <!-- Required ensures user cannot submit empty form -->
     </div>
 
+    <!-- Preferred location (used for geocoding later) -->
     <div class="form-group">
         <label for="location">Preferred Location</label>
-        <input type="text" name="location" id="location" placeholder="e.g. Leicester" required>
+        <input 
+            type="text" 
+            name="location" 
+            id="location" 
+            placeholder="e.g. Leicester" 
+            required
+        >
     </div>
 
+    <!-- Country preference -->
     <div class="form-group">
         <label for="country">Country</label>
-        <input type="text" name="country" id="country" placeholder="e.g. UK" required>
+        <input 
+            type="text" 
+            name="country" 
+            id="country" 
+            placeholder="e.g. UK" 
+            required
+        >
     </div>
 
+    <!-- Stay type (used in scoring logic) -->
     <div class="form-group">
         <label for="stayType">Stay Type</label>
         <select name="stayType" id="stayType" required>
@@ -27,11 +58,21 @@
         </select>
     </div>
 
+    <!-- Number of guests -->
     <div class="form-group">
         <label for="guests">Number of Guests</label>
-        <input type="number" name="guests" id="guests" min="1" placeholder="Enter number of guests" required>
+        <input 
+            type="number" 
+            name="guests" 
+            id="guests" 
+            min="1" 
+            placeholder="Enter number of guests" 
+            required
+        >
+        <!-- min=1 prevents invalid values -->
     </div>
 
+    <!-- Distance preference (used in Haversine calculation) -->
     <div class="form-group">
         <label for="radius">How far from your preferred location?</label>
         <select name="radius" id="radius" required>
@@ -43,5 +84,6 @@
         </select>
     </div>
 
+    <!-- Submit button -->
     <button type="submit" class="btn">Get Recommendations</button>
 </form>

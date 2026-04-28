@@ -1,3 +1,5 @@
+//Sample listings data use to seed/populate the database
+//manually adding the list for testing
 const sampleListings = [
     {
         title: "Modern Loft",
@@ -15,4 +17,5 @@ const sampleListings = [
     }
 ];
 
+//exporting the data so it can be used in index.js
 module.exports = { data: sampleListings };

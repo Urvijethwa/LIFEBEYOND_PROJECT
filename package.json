@@ -1,18 +1,25 @@
 {
   "name": "lifebeyond",
   "version": "1.0.0",
-  "description": "",
+  "description": "LifeBeyond accommodation marketplace with holiday recommender assistant",
   "main": "app.js",
+  "type": "commonjs",
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "lifebeyond",
+    "accommodation",
+    "marketplace",
+    "node",
+    "express",
+    "mongodb"
+  ],
+  "author": "Urvarshi Shantilal Jethwa",
   "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "axios": "^1.15.0",
+    "axios": "^1.15.2",
     "bcryptjs": "^3.0.3",
     "connect-flash": "^0.1.1",
     "connect-mongo": "^6.0.0",
@@ -23,10 +30,18 @@
     "express-session": "^1.19.0",
     "joi": "^18.1.2",
     "method-override": "^3.0.0",
-    "mongoose": "^9.4.1",
+    "mongoose": "^9.5.0",
     "stripe": "^22.1.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Urvijethwa/LIFEBEYOND_PROJECT.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Urvijethwa/LIFEBEYOND_PROJECT/issues"
+  },
+  "homepage": "https://github.com/Urvijethwa/LIFEBEYOND_PROJECT#readme"
 }

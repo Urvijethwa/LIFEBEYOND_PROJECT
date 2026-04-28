@@ -1,15 +1,21 @@
 <% layout("layouts/boilerplate") %>
+<!-- Uses main layout -->
 
 <div class="show-container">
+
+    <!-- ================= IMAGE ================= -->
     <img 
         src="<%= listing.image %>" 
         alt="<%= listing.title %>" 
         class="show-img"
         onerror="this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000'"
     >
+    <!-- Displays listing image with fallback if broken -->
 
+    <!-- ================= TITLE ================= -->
     <h1><%= listing.title %></h1>
 
+    <!-- ================= RATING ================= -->
     <% if(listing.reviews.length > 0) { %>
         <p class="rating-summary">
             ⭐ <strong><%= averageRating %></strong> / 5 
@@ -19,54 +25,75 @@
         <p class="rating-summary">No ratings yet</p>
     <% } %>
 
+    <!-- AI-style review summary -->
     <% if(listing.reviews.length > 0) { %>
         <p class="review-summary"><%= reviewSummary %></p>
     <% } %>
 
+    <!-- ================= DETAILS ================= -->
     <p><%= listing.description %></p>
     <p class="price"><strong>£<%= listing.price %></strong></p>
     <p class="location"><%= listing.location %>, <%= listing.country %></p>
 
+    <!-- Show owner -->
     <% if(listing.owner) { %>
         <p class="location">Created by: <%= listing.owner.username %></p>
     <% } %>
 
+    <!-- ================= ACTION BUTTONS ================= -->
     <div class="action-buttons">
+
+        <!-- Back button -->
         <a href="/listings" class="btn secondary-btn">Back</a>
 
+        <!-- Guest actions (not owner) -->
         <% if(currentUser && listing.owner && currentUser._id.toString() !== listing.owner._id.toString()) { %>
+
+            <!-- Enquiry -->
             <a href="/listings/<%= listing._id %>/enquiry" class="btn secondary-btn">Enquire</a>
+
+            <!-- Booking -->
             <a href="/listings/<%= listing._id %>/book" class="btn">Book Now</a>
 
+            <!-- Wishlist toggle -->
             <% if(isSaved) { %>
                 <form action="/listings/<%= listing._id %>/remove-wishlist" method="POST">
-    <button class="wishlist-btn active">
-        <i class="fa-solid fa-heart"></i>
-    </button>
-    </form>
+                    <button class="wishlist-btn active">
+                        <i class="fa-solid fa-heart"></i>
+                    </button>
+                </form>
             <% } else { %>
                 <form action="/listings/<%= listing._id %>/wishlist" method="POST">
-    <button class="wishlist-btn">
-        <i class="fa-regular fa-heart"></i>
-    </button>
-    </form>
+                    <button class="wishlist-btn">
+                        <i class="fa-regular fa-heart"></i>
+                    </button>
+                </form>
             <% } %>
+
         <% } %>
 
+        <!-- Owner actions -->
         <% if(currentUser && listing.owner && currentUser._id.toString() === listing.owner._id.toString()) { %>
+
+            <!-- Edit -->
             <a href="/listings/<%= listing._id %>/edit" class="btn">Edit</a>
 
+            <!-- Delete -->
             <form action="/listings/<%= listing._id %>?_method=DELETE" method="POST">
                 <button class="btn delete-btn">Delete</button>
             </form>
+
         <% } %>
     </div>
 
-    <hr style="margin: 30px 0;">
+    <hr>
 
+    <!-- ================= MAP ================= -->
     <% if(listing.latitude != null && listing.longitude != null) { %>
         <div class="map-section">
             <h2>Location on Map</h2>
+
+            <!-- Pass coordinates to JS -->
             <div 
                 id="map"
                 data-lat="<%= listing.latitude %>"
@@ -75,18 +102,18 @@
             ></div>
         </div>
 
+        <!-- Leaflet map script -->
         <script>
             window.addEventListener("load", function () {
                 const mapElement = document.getElementById("map");
+
                 const lat = parseFloat(mapElement.dataset.lat);
                 const lng = parseFloat(mapElement.dataset.lng);
                 const title = mapElement.dataset.title;
 
                 const map = L.map("map").setView([lat, lng], 13);
 
-                L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-                    attribution: "&copy; OpenStreetMap contributors"
-                }).addTo(map);
+                L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
                 L.marker([lat, lng])
                     .addTo(map)
@@ -96,97 +123,105 @@
         </script>
     <% } %>
 
+    <!-- ================= NEARBY LISTINGS ================= -->
     <% if(nearbyListings && nearbyListings.length > 0) { %>
-        <hr style="margin: 30px 0;">
 
         <h2>Nearby Listings</h2>
 
         <div class="card-container">
             <% for(let nearby of nearbyListings) { %>
+
                 <a href="/listings/<%= nearby._id %>" class="listing-link">
                     <div class="card">
-                        <img 
-                            src="<%= nearby.image %>" 
-                            alt="<%= nearby.title %>" 
-                            class="card-img"
-                            onerror="this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000'"
-                        >
+
+                        <img src="<%= nearby.image %>" class="card-img">
+
                         <div class="card-body">
                             <h3><%= nearby.title %></h3>
                             <p><%= nearby.description %></p>
                             <p class="price">£<%= nearby.price %></p>
                             <p class="location"><%= nearby.location %>, <%= nearby.country %></p>
-                            <p class="card-rating"><strong><%= nearby.distance %> km away</strong></p>
+                            <p class="card-rating">
+                                <strong><%= nearby.distance %> km away</strong>
+                            </p>
                         </div>
+
                     </div>
                 </a>
+
             <% } %>
         </div>
     <% } %>
 
+    <!-- ================= REVIEWS ================= -->
     <h2 id="reviews">Reviews</h2>
 
+    <!-- Add review form -->
     <% if(canReview) { %>
         <form action="/listings/<%= listing._id %>/reviews" method="POST" class="listing-form">
+
             <div class="form-group">
-                <label for="rating">Rating</label>
-                <select name="rating" id="rating" required>
+                <label>Rating</label>
+                <select name="rating" required>
                     <option value="">Select rating</option>
                     <option value="1">1 - Poor</option>
-                    <option value="2">2 - Fair</option>
-                    <option value="3">3 - Good</option>
-                    <option value="4">4 - Very Good</option>
                     <option value="5">5 - Excellent</option>
                 </select>
             </div>
 
             <div class="form-group">
-                <label for="comment">Comment</label>
-                <textarea name="comment" id="comment" required></textarea>
+                <label>Comment</label>
+                <textarea name="comment" required></textarea>
             </div>
 
             <button class="btn">Add Review</button>
         </form>
+
     <% } else if(currentUser) { %>
-        <p class="location">
-            You can leave a review after completing a paid booking for this property.
-        </p>
+
+        <p>You can leave a review after completing a paid booking.</p>
+
     <% } else { %>
-        <p class="location">
-            Login to book this property. Reviews can only be added after a completed booking.
-        </p>
+
+        <p>Login to book and review this property.</p>
+
     <% } %>
 
+    <!-- Display reviews -->
     <div class="review-container">
         <% for(let review of listing.reviews) { %>
+
             <div class="review-card">
+
+                <!-- Star rating -->
                 <p>
-                    <strong>Rating:</strong> 
                     <% for(let i = 1; i <= 5; i++) { %>
-                        <% if(i <= review.rating) { %>
-                            ⭐
-                        <% } else { %>
-                            ☆
-                        <% } %>
+                        <%= i <= review.rating ? "⭐" : "☆" %>
                     <% } %>
                 </p>
 
                 <p><%= review.comment %></p>
 
+                <!-- Author -->
                 <% if(review.author) { %>
-                    <p class="location">By: <%= review.author.username %></p>
+                    <p>By: <%= review.author.username %></p>
                 <% } %>
 
+                <!-- Delete review -->
                 <% if(currentUser && review.author && currentUser._id.toString() === review.author._id.toString()) { %>
                     <form action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE" method="POST">
                         <button class="btn delete-btn">Delete Review</button>
                     </form>
                 <% } %>
+
             </div>
+
         <% } %>
     </div>
 
+    <!-- No reviews -->
     <% if(listing.reviews.length === 0) { %>
         <p>No reviews yet.</p>
     <% } %>
+
 </div>

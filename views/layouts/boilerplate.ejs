@@ -1,33 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Basic page setup -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LifeBeyond</title>
 
+    <!-- Font Awesome icons, main CSS file, and Leaflet map CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
+
 <body>
+    <!-- Reusable navigation bar -->
     <%- include("../includes/navbar") %>
 
     <main>
+        <!-- Success flash message, e.g. login, booking, wishlist -->
         <% if(success && success.length) { %>
             <div class="flash-message success-message">
                 <%= success[0] %>
             </div>
         <% } %>
 
+        <!-- Error flash message, e.g. invalid login or failed action -->
         <% if(error && error.length) { %>
             <div class="flash-message error-message">
                 <%= error[0] %>
             </div>
         <% } %>
 
+        <!-- Main page content is inserted here -->
         <%- body %>
     </main>
 
+    <!-- Website footer -->
     <footer class="site-footer">
         <div class="footer-container">
             <div class="footer-brand">
@@ -39,6 +47,7 @@
                 </p>
             </div>
 
+            <!-- Footer navigation links -->
             <div class="footer-links">
                 <h3>Quick Links</h3>
                 <a href="/listings">All Listings</a>
@@ -46,6 +55,7 @@
                 <a href="/wishlist">Wishlist</a>
             </div>
 
+            <!-- Project information for final year project context -->
             <div class="footer-contact">
                 <h3>Project Info</h3>
                 <p>Final Year Project</p>
@@ -59,16 +69,18 @@
         </div>
     </footer>
 
+    <!-- Floating AI assistant button only appears when user is logged in -->
     <% if(currentUser) { %>
-    <a href="/listings/assistant" class="ai-chat-box">
-        <div class="ai-icon">🤖</div>
-        <div>
-            <strong>AI Assistant</strong>
-            <p>Need help finding a stay?</p>
-        </div>
-    </a>
-<% } %>
+        <a href="/listings/assistant" class="ai-chat-box">
+            <div class="ai-icon">🤖</div>
+            <div>
+                <strong>AI Assistant</strong>
+                <p>Need help finding a stay?</p>
+            </div>
+        </a>
+    <% } %>
 
+    <!-- Leaflet JavaScript used for displaying maps on listing pages -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </body>
 </html>

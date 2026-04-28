@@ -1,31 +1,49 @@
 <% layout("layouts/boilerplate") %>
+<!-- Using the main layout so navbar, footer, and styling stay consistent -->
 
-<h1 class="form-heading">Book <%= listing.title %></h1>
+<h1 class="form-heading">
+    Book <%= listing.title %>
+</h1>
+<!-- Shows the title of the listing being booked -->
 
 <form action="/listings/<%= listing._id %>/book" method="POST" class="listing-form">
+    <!-- 
+        Form sends booking data to backend
+        POST /listings/:id/book
+        listing._id is dynamic (depends on which listing user clicked)
+    -->
+
     <p class="location">
         Price per night: <strong>£<%= listing.price %></strong>
     </p>
+    <!-- Shows price so user knows cost before booking -->
 
     <div class="form-group">
         <label for="checkIn">Check-in Date</label>
         <input type="date" name="checkIn" id="checkIn" required>
+        <!-- User must select a check-in date (required prevents empty form) -->
     </div>
 
     <div class="form-group">
         <label for="checkOut">Check-out Date</label>
         <input type="date" name="checkOut" id="checkOut" required>
+        <!-- Check-out must be after check-in (validated in backend) -->
     </div>
 
     <div class="form-group">
         <label for="guests">Number of Guests</label>
         <input type="number" name="guests" id="guests" min="1" required>
+        <!-- Minimum 1 guest to prevent invalid bookings -->
     </div>
 
     <p class="rating-summary">
         Estimated total will be calculated after submitting.
     </p>
+    <!-- Inform user that backend calculates total price -->
 
+    <!-- Submit button -->
     <button class="btn">Proceed to Payment</button>
+
+    <!-- Cancel button (takes user back to listing page) -->
     <a href="/listings/<%= listing._id %>" class="btn secondary-btn">Cancel</a>
 </form>

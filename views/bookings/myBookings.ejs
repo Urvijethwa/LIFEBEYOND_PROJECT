@@ -1,70 +1,125 @@
 <% layout("layouts/boilerplate") %>
+<!-- Uses main layout (navbar, footer, styles) -->
 
 <div class="page-header">
     <div>
         <h1>My Bookings</h1>
+        <!-- Page title -->
+
         <p class="location">View and manage your booking requests.</p>
+        <!-- Small description -->
     </div>
 </div>
 
+<!-- IF user has no bookings -->
 <% if(bookings.length === 0) { %>
     <div class="empty-state">
         <p>You have not made any bookings yet.</p>
     </div>
+
+<!-- ELSE show bookings -->
 <% } else { %>
     <div class="card-container">
+
+        <!-- LOOP through all bookings -->
         <% for(let booking of bookings) { %>
             <div class="card">
+
+                <!-- Listing Image (with fallback if image fails) -->
                 <% if(booking.listing && booking.listing.image) { %>
                     <img 
                         src="<%= booking.listing.image %>" 
                         alt="<%= booking.listing.title %>" 
                         class="card-img"
+
+                        <!-- fallback image -->
                         onerror="this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000'"
                     >
                 <% } %>
 
                 <div class="card-body">
-                    <h3><%= booking.listing ? booking.listing.title : "Listing unavailable" %></h3>
 
+                    <!-- Listing Title -->
+                    <h3>
+                        <%= booking.listing ? booking.listing.title : "Listing unavailable" %>
+                    </h3>
+
+                    <!-- Location -->
                     <% if(booking.listing) { %>
-                        <p class="location"><%= booking.listing.location %>, <%= booking.listing.country %></p>
+                        <p class="location">
+                            <%= booking.listing.location %>, <%= booking.listing.country %>
+                        </p>
                     <% } %>
 
+                    <!-- Booking Status -->
                     <p><strong>Status:</strong> <%= booking.status %></p>
 
+                    <!-- Enquiry message (if exists) -->
                     <% if(booking.message) { %>
                         <p><strong>Message:</strong> <%= booking.message %></p>
                     <% } %>
 
+                    <!-- If it's a FULL booking (not just enquiry) -->
                     <% if(booking.checkIn && booking.checkOut) { %>
+
+                        <!-- Dates -->
                         <p><strong>Check-in:</strong> <%= booking.checkIn.toDateString() %></p>
                         <p><strong>Check-out:</strong> <%= booking.checkOut.toDateString() %></p>
+
+                        <!-- Guests -->
                         <p><strong>Guests:</strong> <%= booking.guests %></p>
-                        <p class="price">Estimated Total: £<%= booking.totalPrice %></p>
+
+                        <!-- Price -->
+                        <p class="price">
+                            Estimated Total: £<%= booking.totalPrice %>
+                        </p>
+
                     <% } else { %>
-                        <p class="location">This is an enquiry only. No booking dates selected.</p>
+
+                        <!-- If only enquiry -->
+                        <p class="location">
+                            This is an enquiry only. No booking dates selected.
+                        </p>
+
                     <% } %>
+
+                    <!-- ========================= -->
+                    <!-- 💳 PAYMENT FEATURE -->
+                    <!-- ========================= -->
 
                     <% if(booking.status === "approved" && booking.checkIn && booking.checkOut) { %>
-                        <a href="/bookings/<%= booking._id %>/payment" class="btn">Pay Now</a>
+                        <a href="/bookings/<%= booking._id %>/payment" class="btn">
+                            Pay Now
+                        </a>
                     <% } %>
 
-                    <% if(booking.status === "paid" && booking.listing) { %>
-            <div class="success-message booking-paid-box">
-                Payment completed. Booking confirmed.
-            </div>
+                    <!-- ========================= -->
+                    <!-- ✅ SUCCESS + REVIEW FEATURE -->
+                    <!-- ========================= -->
 
-            <a href="/listings/<%= booking.listing._id %>#reviews" class="btn">
-                Leave Review
-            </a>
-            <% } %>
+                    <% if(booking.status === "paid" && booking.listing) { %>
+
+                        <div class="success-message booking-paid-box">
+                            Payment completed. Booking confirmed.
+                        </div>
+
+                        <!-- Redirect to review section -->
+                        <a href="/listings/<%= booking.listing._id %>#reviews" class="btn">
+                            Leave Review
+                        </a>
+
+                    <% } %>
+
+                    <!-- ========================= -->
+                    <!-- ❌ CANCEL BOOKING FEATURE -->
+                    <!-- ========================= -->
 
                     <% if(booking.status !== "cancelled" && booking.status !== "paid") { %>
                         <form action="/bookings/<%= booking._id %>/cancel" method="POST">
                             <button class="btn delete-btn">Cancel</button>
                         </form>
                     <% } %>
+
                 </div>
             </div>
         <% } %>

@@ -1,7 +1,10 @@
 <% layout("layouts/boilerplate") %>
+<!-- Using main layout for consistent UI -->
 
 <h1>Recommended Listings</h1>
+<!-- Page title showing results -->
 
+<!-- Shows the user's selected preferences -->
 <p class="location">
     Based on your preferences:
     <strong><%= preferences.location %></strong>,
@@ -10,55 +13,90 @@
     stay type <strong><%= preferences.stayType %></strong>
 </p>
 
+<!-- WEATHER FEATURE -->
 <% if(weatherSummary) { %>
     <div class="review-card" style="margin-bottom: 20px;">
         <h3>Weather at your preferred location</h3>
+
+        <!-- Weather condition (from API) -->
         <p><strong><%= weatherSummary.weatherText %></strong></p>
-        <p>Max: <%= weatherSummary.maxTemp %>°C | Min: <%= weatherSummary.minTemp %>°C</p>
+
+        <!-- Temperature range -->
+        <p>
+            Max: <%= weatherSummary.maxTemp %>°C | 
+            Min: <%= weatherSummary.minTemp %>°C
+        </p>
     </div>
 <% } %>
 
+<!-- RECOMMENDED LISTINGS -->
 <div class="card-container">
+
+    <!-- Loop through recommended listings -->
     <% recommendations.forEach((listing, index) => { %>
+
+        <!-- Clickable card (takes user to listing page) -->
         <a href="/listings/<%= listing._id %>" class="listing-link">
+
             <div class="card">
+
+                <!-- Listing image with fallback -->
                 <img 
                     src="<%= listing.image %>" 
                     alt="<%= listing.title %>" 
                     class="card-img"
                     onerror="this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000'"
                 >
+
                 <div class="card-body">
+
+                    <!-- Basic listing info -->
                     <h3><%= listing.title %></h3>
                     <p><%= listing.description %></p>
-                    <p class="price">£<%= listing.price %></p>
-                    <p class="location"><%= listing.location %>, <%= listing.country %></p>
 
+                    <p class="price">£<%= listing.price %></p>
+
+                    <p class="location">
+                        <%= listing.location %>, <%= listing.country %>
+                    </p>
+
+                    <!-- MATCH QUALITY (based on score) -->
                     <% if(index === 0) { %>
                         <p class="card-rating"><strong>🏆 Top Match</strong></p>
+
                     <% } else if(listing.score >= 90) { %>
                         <p class="card-rating"><strong>Excellent Match</strong></p>
+
                     <% } else if(listing.score >= 70) { %>
                         <p class="card-rating"><strong>Good Match</strong></p>
+
                     <% } else { %>
                         <p class="card-rating"><strong>Suitable Match</strong></p>
                     <% } %>
 
+                    <!-- Distance from preferred location -->
                     <% if(listing.distance) { %>
-                        <p class="card-rating"><%= listing.distance %> km from preferred location</p>
-                    <% } %>
-
-                    <% if(listing.explanation && listing.explanation.length > 0) { %>
-                        <p class="location">
-                            Recommended because: <%= listing.explanation.join(", ") %>.
+                        <p class="card-rating">
+                            <%= listing.distance %> km from preferred location
                         </p>
                     <% } %>
+
+                    <!-- Explanation of why this was recommended -->
+                    <% if(listing.explanation && listing.explanation.length > 0) { %>
+                        <p class="location">
+                            Recommended because: 
+                            <%= listing.explanation.join(", ") %>.
+                        </p>
+                    <% } %>
+
                 </div>
             </div>
         </a>
+
     <% }) %>
 </div>
 
+<!-- If no recommendations found -->
 <% if(recommendations.length === 0) { %>
     <p>No matching recommendations found. Try changing your preferences.</p>
 <% } %>

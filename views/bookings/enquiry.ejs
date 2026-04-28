@@ -1,15 +1,34 @@
 <% layout("layouts/boilerplate") %>
+<!-- 
+    Uses main layout file (boilerplate.ejs)
+    This keeps consistent navbar, footer, styling across pages
+-->
 
 <div class="listing-form">
-    <h2>Send Enquiry</h2>
+    <!-- Container styled using CSS (.listing-form class) -->
 
+    <h2>Send Enquiry</h2>
+    <!-- Page heading -->
+
+    <!-- 
+        FORM: Sends enquiry to backend
+        Action → POST /listings/:id/enquiry
+        :id is replaced dynamically using listing._id
+    -->
     <form action="/listings/<%= listing._id %>/enquiry" method="POST">
 
         <div class="form-group">
             <label>Message</label>
+
+            <!-- 
+                TEXTAREA:
+                User enters enquiry message to host
+                required → prevents empty submission (basic validation)
+            -->
             <textarea name="message" required></textarea>
         </div>
 
+        <!-- Submit button -->
         <button class="btn">Send Enquiry</button>
     </form>
 </div>

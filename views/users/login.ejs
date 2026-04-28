@@ -1,17 +1,37 @@
 <% layout("layouts/boilerplate") %>
+<!-- Uses main layout (navbar, footer, consistent styling across the app) -->
 
 <h1 class="form-heading">Login</h1>
+<!-- Page title -->
 
 <form action="/login" method="POST" class="listing-form">
+    <!-- Form sends user credentials to backend route POST /login -->
+
+    <!-- Email input -->
     <div class="form-group">
         <label for="email">Email</label>
-        <input name="email" id="email" type="email" required>
+        <input 
+            name="email" 
+            id="email" 
+            type="email" 
+            required
+        >
+        <!-- Required field, ensures valid email format -->
     </div>
 
+    <!-- Password input -->
     <div class="form-group">
         <label for="password">Password</label>
-        <input name="password" id="password" type="password" required>
+        <input 
+            name="password" 
+            id="password" 
+            type="password" 
+            required
+        >
+        <!-- Password is hidden for security -->
     </div>
 
+    <!-- Submit button -->
     <button type="submit" class="btn">Login</button>
+    <!-- Sends login request to backend -->
 </form>

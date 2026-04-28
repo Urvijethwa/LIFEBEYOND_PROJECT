@@ -1,23 +1,37 @@
 <% layout("layouts/boilerplate") %>
+<!-- Uses main layout (navbar, footer, global styles) -->
 
 <div class="page-header">
     <h1>My Listings</h1>
+
+    <!-- Button to allow host to create a new listing -->
     <a href="/listings/new" class="btn">Add New Listing</a>
 </div>
 
+<!-- Container to display all listings created by the current user -->
 <div class="card-container">
+
     <% for(let listing of listings) { %>
+        <!-- Each listing is clickable and redirects to its detail page -->
         <a href="/listings/<%= listing._id %>" class="listing-link">
+
             <div class="card">
+
+                <!-- Listing image -->
                 <img 
                     src="<%= listing.image %>" 
                     alt="<%= listing.title %>" 
                     class="card-img"
                     onerror="this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000'"
                 >
+                <!-- Fallback image if the original image fails -->
+
                 <div class="card-body">
+
+                    <!-- Listing title -->
                     <h3><%= listing.title %></h3>
                 
+                    <!-- Calculate average rating -->
                     <% 
                         let averageRating = 0;
                         if (listing.reviews.length > 0) {
@@ -26,21 +40,34 @@
                         }
                     %>
                 
+                    <!-- Display rating if available -->
                     <% if(listing.reviews.length > 0) { %>
-                        <p class="card-rating">⭐ <strong><%= averageRating %></strong> / 5</p>
+                        <p class="card-rating">
+                            ⭐ <strong><%= averageRating %></strong> / 5
+                        </p>
                     <% } else { %>
                         <p class="card-rating">No ratings yet</p>
                     <% } %>
                 
+                    <!-- Listing description -->
                     <p><%= listing.description %></p>
+
+                    <!-- Listing price -->
                     <p class="price">£<%= listing.price %></p>
-                    <p class="location"><%= listing.location %>, <%= listing.country %></p>
+
+                    <!-- Listing location -->
+                    <p class="location">
+                        <%= listing.location %>, <%= listing.country %>
+                    </p>
+
                 </div>
             </div>
         </a>
     <% } %>
+
 </div>
 
+<!-- If the user has no listings -->
 <% if(listings.length === 0) { %>
     <p>You have not created any listings yet.</p>
 <% } %>

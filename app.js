@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config(); // Load environment variables (.env)
 
 const express = require("express");
 const path = require("path");
@@ -9,6 +9,7 @@ const session = require("express-session");
 const MongoStore = require("connect-mongo").default;
 const flash = require("connect-flash");
 
+// Import routes
 const listingRoutes = require("./routes/listings");
 const userRoutes = require("./routes/users");
 const wishlistRoutes = require("./routes/wishlist");
@@ -18,28 +19,23 @@ const User = require("./models/user");
 
 const app = express();
 
+// DB + session config
 const MONGO_URL = process.env.MONGO_URL || "mongodb://127.0.0.1:27017/lifebeyond";
 const SESSION_SECRET = process.env.SESSION_SECRET || "mysecretkey";
 
 // Connect to MongoDB
 mongoose.connect(MONGO_URL)
-    .then(() => {
-        console.log("Connected to DB");
-    })
-    .catch((err) => {
-        console.log(err);
-    });
+    .then(() => console.log("Connected to DB"))
+    .catch((err) => console.log(err));
 
-// Session store
+// Store sessions in MongoDB
 const store = MongoStore.create({
     mongoUrl: MONGO_URL,
-    crypto: {
-        secret: SESSION_SECRET
-    },
-    touchAfter: 24 * 3600
+    crypto: { secret: SESSION_SECRET },
+    touchAfter: 24 * 3600 // reduces DB writes
 });
 
-// Session configuration
+// Session settings
 const sessionOptions = {
     store,
     secret: SESSION_SECRET,
@@ -48,23 +44,23 @@ const sessionOptions = {
     cookie: {
         expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
         maxAge: 7 * 24 * 60 * 60 * 1000,
-        httpOnly: true
+        httpOnly: true // security
     }
 };
 
-// Basic middleware
-app.use(express.urlencoded({ extended: true }));
-app.use(methodOverride("_method"));
-app.use(express.static(path.join(__dirname, "public")));
-app.use(session(sessionOptions));
-app.use(flash());
+// Middleware
+app.use(express.urlencoded({ extended: true })); // read form data
+app.use(methodOverride("_method")); // support PUT/DELETE
+app.use(express.static(path.join(__dirname, "public"))); // static files
+app.use(session(sessionOptions)); // session handling
+app.use(flash()); // flash messages
 
 // EJS setup
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// Global locals
+// Global variables (available in all views)
 app.use(async (req, res, next) => {
     if (req.session.userId) {
         const user = await User.findById(req.session.userId);
@@ -88,7 +84,7 @@ app.use("/", bookingRoutes);
 app.use("/listings", listingRoutes);
 app.use("/listings/:id/reviews", reviewRoutes);
 
-// Default home redirect
+// Default route
 app.get("/", (req, res) => {
     res.redirect("/listings");
 });

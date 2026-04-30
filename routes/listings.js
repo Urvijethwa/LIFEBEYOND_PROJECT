@@ -52,27 +52,23 @@ router.get("/", async (req, res) => {
 
     let filter = {};
 
-    // Search by title or location (case-insensitive)
-    if (search || location) {
-        filter.$or = [];
+// keyword search (title + description)
+if (search && search.trim() !== "") {
+    filter.$or = [
+        { title: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } }
+    ];
+}
 
-        if (search) {
-            filter.$or.push({
-                title: { $regex: search, $options: "i" }
-            });
-        }
+// location search
+if (location && location.trim() !== "") {
+    filter.location = { $regex: location, $options: "i" };
+}
 
-        if (location) {
-            filter.$or.push({
-                location: { $regex: location, $options: "i" }
-            });
-        }
-    }
-
-    // Price filter
-    if (maxPrice) {
-        filter.price = { $lte: Number(maxPrice) };
-    }
+// price filter
+if (maxPrice && maxPrice !== "") {
+    filter.price = { $lte: Number(maxPrice) };
+}
 
     let query = Listing.find(filter).populate("reviews");
 

@@ -22,10 +22,34 @@
         <input name="email" id="email" type="email" required>
     </div>
 
-    <div class="form-group">
-        <label for="password">Password</label>
+    <div class="form-group password-group">
+    <label for="password">Password</label>
+    
+    <div class="password-wrapper">
         <input name="password" id="password" type="password" required>
+        
+        <!-- eye icon -->
+        <span class="toggle-password" onclick="togglePassword()">
+            <i id="eyeIcon" class="fa-solid fa-eye"></i>
+        </span>
     </div>
+</div>
 
     <button type="submit" class="btn">Register</button>
 </form>
+<script>
+function togglePassword() {
+    const passwordInput = document.getElementById("password");
+    const icon = document.getElementById("eyeIcon");
+
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+    } else {
+        passwordInput.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+    }
+}
+</script>

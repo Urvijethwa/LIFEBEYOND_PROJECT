@@ -1,93 +1,73 @@
 <% layout("layouts/boilerplate") %>
-<!-- Using main layout so design stays consistent across pages -->
 
 <div class="page-header">
     <div>
         <h1>Booking Requests</h1>
-        <!-- Title for host dashboard -->
-
-        <p class="location">
-            View enquiries and booking requests for your listings.
-        </p>
-        <!-- Small description to explain purpose -->
+        <p class="location">Manage enquiries and booking requests for your listings.</p>
     </div>
 </div>
 
-<!-- If no bookings/enquiries exist -->
 <% if(bookings.length === 0) { %>
     <div class="empty-state">
         <p>No booking requests yet.</p>
     </div>
-
-<!-- If bookings exist -->
 <% } else { %>
-    <div class="review-container">
 
-        <!-- Loop through each booking -->
-        <% for(let booking of bookings) { %>
-            <div class="review-card">
+    <div class="booking-table-wrapper">
+        <table class="booking-table">
+            <thead>
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Listing</th>
+                    <th>Guest</th>
+                    <th>Status</th>
+                    <th>Check-in</th>
+                    <th>Check-out</th>
+                    <th>Guests</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
 
-                <!-- Listing title -->
-                <h3>
-                    <%= booking.listing ? booking.listing.title : "Listing unavailable" %>
-                </h3>
+            <tbody>
+                <% for(let booking of bookings) { %>
+                    <tr>
+                        <td>
+                            <strong><%= booking._id.toString().slice(-8).toUpperCase() %></strong>
+                        </td>
 
-                <!-- Show who requested the booking -->
-                <% if(booking.user) { %>
-                    <p>
-                        <strong>Requested by:</strong> 
-                        <%= booking.user.username %>
-                    </p>
+                        <td>
+                            <%= booking.listing ? booking.listing.title : "Listing unavailable" %>
+                        </td>
+
+                        <td>
+                            <%= booking.user ? booking.user.username : "Unknown guest" %>
+                        </td>
+
+                        <td>
+                            <span class="status-badge <%= booking.status %>">
+                                <%= booking.status %>
+                            </span>
+                        </td>
+
+                        <td>
+                            <%= booking.checkIn ? booking.checkIn.toDateString() : "-" %>
+                        </td>
+
+                        <td>
+                            <%= booking.checkOut ? booking.checkOut.toDateString() : "-" %>
+                        </td>
+
+                        <td>
+                            <%= booking.guests || "-" %>
+                        </td>
+
+                        <td>
+                            £<%= booking.totalPrice || 0 %>
+                        </td>
+                    </tr>
                 <% } %>
-
-                <!-- Booking status -->
-                <p><strong>Status:</strong> <%= booking.status %></p>
-
-                <!-- Enquiry message (if provided) -->
-                <% if(booking.message) { %>
-                    <p><strong>Message:</strong> <%= booking.message %></p>
-                <% } %>
-
-                <!-- If it's a real booking (dates selected) -->
-                <% if(booking.checkIn && booking.checkOut) { %>
-
-                    <p><strong>Check-in:</strong> <%= booking.checkIn.toDateString() %></p>
-                    <p><strong>Check-out:</strong> <%= booking.checkOut.toDateString() %></p>
-
-                    <p><strong>Guests:</strong> <%= booking.guests %></p>
-
-                    <p><strong>Total:</strong> £<%= booking.totalPrice %></p>
-
-                <% } else { %>
-
-                    <!-- If it's only an enquiry -->
-                    <p class="location">
-                        This is an enquiry message only. No booking dates have been selected yet.
-                    </p>
-
-                <% } %>
-
-                <!-- ========================= -->
-                <!-- HOST ACTIONS (IMPORTANT) -->
-                <!-- ========================= -->
-
-                <% if(booking.status === "pending" || booking.status === "enquiry") { %>
-                    <div class="action-buttons">
-
-                        <!-- Approve booking -->
-                        <form action="/bookings/<%= booking._id %>/approve" method="POST">
-                            <button class="btn">Approve</button>
-                        </form>
-
-                        <!-- Reject booking -->
-                        <form action="/bookings/<%= booking._id %>/reject" method="POST">
-                            <button class="btn delete-btn">Reject</button>
-                        </form>
-
-                    </div>
-                <% } %>
-
-            </div>
-        <% } %>
+            </tbody>
+        </table>
     </div>
+
 <% } %>

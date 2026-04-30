@@ -40,12 +40,12 @@
     <form action="/listings" method="GET" class="search-form">
         <div class="search-group">
 
-            <!-- Search by title -->
+            <!-- Search by keyword -->
             <input 
-                type="text" 
-                name="search" 
-                placeholder="Search by title"
-                value="<%= search || '' %>"
+            type="text" 
+            name="search" 
+            placeholder="Search by keyword (name, description)"
+            value="<%= search || '' %>"
             >
 
             <!-- Search by location -->
@@ -88,6 +88,11 @@
             <a href="/listings" class="btn secondary-btn">Reset</a>
         </div>
     </form>
+<% } %>
+
+<!-- Show message if filters are used -->
+<% if(search || location || maxPrice) { %>
+    <p class="filter-info">Showing filtered results</p>
 <% } %>
 
 <!-- Listings grid -->
@@ -149,7 +154,6 @@
 
 </div>
 
-<!-- If no listings -->
 <% if(listings.length === 0) { %>
-    <p>No listings found.</p>
+    <p>No listings found. Try adjusting your search filters.</p>
 <% } %>

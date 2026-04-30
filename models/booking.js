@@ -56,6 +56,18 @@ const bookingSchema = new Schema({
         type: String
     },
 
+    viewingDate: {
+    type: Date
+    },
+
+    viewingTime: {
+        type: String
+    },
+
+    ownerReply: {
+        type: String
+    },
+
     // Booking status to track lifecycle of booking
     status: {
         type: String,

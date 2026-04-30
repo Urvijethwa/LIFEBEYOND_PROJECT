@@ -50,8 +50,7 @@
         <% if(currentUser && listing.owner && currentUser._id.toString() !== listing.owner._id.toString()) { %>
 
             <!-- Enquiry -->
-            <a href="/listings/<%= listing._id %>/enquiry" class="btn secondary-btn">Enquire</a>
-
+            <a href="/listings/<%= listing._id %>/enquiry" class="btn secondary-btn">Book Viewing</a>
             <!-- Booking -->
             <a href="/listings/<%= listing._id %>/book" class="btn">Book Now</a>
 

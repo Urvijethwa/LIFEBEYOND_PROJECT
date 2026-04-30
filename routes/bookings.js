@@ -103,17 +103,19 @@ router.post("/listings/:id/enquiry", isLoggedIn, async (req, res) => {
     }
 
     // Create enquiry (stored as booking with "enquiry" status)
-    const enquiry = new Booking({
-        listing: listing._id,
-        user: req.session.userId,
-        owner: listing.owner._id,
-        message: req.body.message,
-        status: "enquiry"
-    });
+   const enquiry = new Booking({
+    listing: listing._id,
+    user: req.session.userId,
+    owner: listing.owner._id,
+    viewingDate: req.body.viewingDate,
+    viewingTime: req.body.viewingTime,
+    message: req.body.message,
+    status: "enquiry"
+});
 
     await enquiry.save();
 
-    req.flash("success", "Enquiry sent to owner.");
+    req.flash("success", "Viewing request sent to owner.");
     res.redirect(`/listings/${listing._id}`);
 });
 
@@ -250,6 +252,22 @@ router.get("/bookings/:id/success", isLoggedIn, async (req, res) => {
 
     req.flash("success", "Payment successful. Booking confirmed.");
     res.redirect("/my-bookings");
+});
+
+// APPROVE VIEWING
+router.post("/:id/approve", async (req, res) => {
+    await Booking.findByIdAndUpdate(req.params.id, {
+        status: "approved"
+    });
+    res.redirect("/owner/bookings");
+});
+
+// DECLINE VIEWING
+router.post("/:id/reject", async (req, res) => {
+    await Booking.findByIdAndUpdate(req.params.id, {
+        status: "rejected"
+    });
+    res.redirect("/owner/bookings");
 });
 
 module.exports = router;

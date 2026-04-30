@@ -2,14 +2,14 @@
 
 <div class="page-header">
     <div>
-        <h1>Booking Requests</h1>
-        <p class="location">Manage enquiries and booking requests for your listings.</p>
+        <h1>Viewing / Booking Requests</h1>
+        <p class="location">Manage viewing and booking requests for your listings.</p>
     </div>
 </div>
 
 <% if(bookings.length === 0) { %>
     <div class="empty-state">
-        <p>No booking requests yet.</p>
+        <p>No requests yet.</p>
     </div>
 <% } else { %>
 
@@ -17,7 +17,7 @@
         <table class="booking-table">
             <thead>
                 <tr>
-                    <th>Booking ID</th>
+                    <th>Request ID</th>
                     <th>Listing</th>
                     <th>Guest</th>
                     <th>Status</th>
@@ -25,6 +25,9 @@
                     <th>Check-out</th>
                     <th>Guests</th>
                     <th>Total</th>
+                    <th>Action</th>
+                    <th>Viewing Date</th>
+                    <th>Viewing Time</th>
                 </tr>
             </thead>
 
@@ -44,9 +47,19 @@
                         </td>
 
                         <td>
-                            <span class="status-badge <%= booking.status %>">
-                                <%= booking.status %>
-                            </span>
+                            <% if(booking.status === "enquiry") { %>
+                                <span class="status-badge pending">Viewing Request</span>
+                            <% } else if(booking.status === "approved") { %>
+                                <span class="status-badge approved">Approved</span>
+                            <% } else if(booking.status === "paid") { %>
+                                <span class="status-badge paid">Confirmed</span>
+                            <% } else if(booking.status === "rejected") { %>
+                                <span class="status-badge rejected">Declined</span>
+                            <% } else if(booking.status === "cancelled") { %>
+                                <span class="status-badge cancelled">Cancelled</span>
+                            <% } else { %>
+                                <span class="status-badge pending"><%= booking.status %></span>
+                            <% } %>
                         </td>
 
                         <td>
@@ -63,6 +76,33 @@
 
                         <td>
                             £<%= booking.totalPrice || 0 %>
+                        </td>
+
+                        <!-- VIEWING DATE -->
+                        <td>
+                            <%= booking.viewingDate ? booking.viewingDate.toDateString() : "-" %>
+                        </td>
+
+                        <!-- VIEWING TIME -->
+                        <td>
+                            <%= booking.viewingTime || "-" %>
+                        </td>
+
+                        <!-- ACTION -->
+                        <td>
+                            <% if(booking.status === "enquiry" || booking.status === "pending") { %>
+                                <div class="table-actions">
+                                    <form action="/bookings/<%= booking._id %>/approve" method="POST">
+                                        <button class="btn">Approve</button>
+                                    </form>
+
+                                    <form action="/bookings/<%= booking._id %>/reject" method="POST">
+                                        <button class="btn delete-btn">Decline</button>
+                                    </form>
+                                </div>
+                            <% } else { %>
+                                <span>-</span>
+                            <% } %>
                         </td>
                     </tr>
                 <% } %>

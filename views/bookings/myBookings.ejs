@@ -28,13 +28,11 @@
                 <!-- Listing Image (with fallback if image fails) -->
                 <% if(booking.listing && booking.listing.image) { %>
                     <img 
-                        src="<%= booking.listing.image %>" 
-                        alt="<%= booking.listing.title %>" 
+                        src="<%= booking.listing?.image || 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000' %>" 
+                        alt="listing image"
                         class="card-img"
-
-                        <!-- fallback image -->
-                        onerror="this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000'"
-                    >
+                        onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000';"
+                    />
                 <% } %>
 
                 <div class="card-body">

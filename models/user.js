@@ -40,8 +40,28 @@ const userSchema = new Schema({
             type: Schema.Types.ObjectId,
             ref: "Listing" // links to Listing model
         }
-    ]
-});
+    ],
+
+    bio: {
+    type: String,
+    default: "This host has not added a bio yet."
+    },
+
+    hostLocation: {
+        type: String,
+        default: "Location not added"
+    },
+
+    hostWork: {
+        type: String,
+        default: "Not specified"
+    },
+
+    responseTime: {
+        type: String,
+        default: "Usually responds within 24 hours"
+    }
+    });
 
 // Create User model
 const User = mongoose.model("User", userSchema);

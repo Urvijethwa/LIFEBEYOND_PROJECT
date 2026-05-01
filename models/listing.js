@@ -45,7 +45,13 @@ const listingSchema = new Schema({
             type: Schema.Types.ObjectId,
             ref: "Review"
         }
-    ]
+    ],
+
+    maxGuests: {
+    type: Number,
+    min: 1,
+    default: 1
+    }
 });
 
 // Create Listing model

@@ -11,6 +11,7 @@ module.exports.listingSchema = Joi.object({
     location: Joi.string().required(), // location required
     country: Joi.string().required(), // country required
     latitude: Joi.number().allow("", null), // optional for map feature
+    maxGuests: Joi.number().required().min(1),
     longitude: Joi.number().allow("", null) // optional for map feature
 });
 

@@ -32,15 +32,22 @@
 
     <!-- ================= DETAILS ================= -->
     <p><%= listing.description %></p>
-    <p class="price"><strong>£<%= listing.price %></strong></p>
-    <p class="location"><%= listing.location %>, <%= listing.country %></p>
 
-    <!-- Show owner -->
+    <p class="price"><strong>£<%= listing.price %></strong></p>
+
+    <p class="location">
+        <%= listing.location %>, <%= listing.country %>
+    </p>
+
+    <p class="location">
+        <strong>Guest Capacity:</strong> 
+        Up to <%= listing.maxGuests || 1 %> guest<%= (listing.maxGuests || 1) > 1 ? "s" : "" %>
+    </p>
+
     <% if(listing.owner) { %>
         <p class="location">Created by: <%= listing.owner.username %></p>
     <% } %>
 
-    <!-- ================= ACTION BUTTONS ================= -->
     <div class="action-buttons">
 
         <!-- Back button -->
@@ -86,6 +93,47 @@
     </div>
 
     <hr>
+
+    <hr>
+
+<div class="host-section">
+    <h2>Meet Your Host</h2>
+
+    <div class="host-card">
+
+        <!-- LEFT SIDE -->
+        <div class="host-profile">
+            <div class="host-avatar">
+                <%= listing.owner.username.charAt(0).toUpperCase() %>
+            </div>
+
+            <h3><%= listing.owner.username %></h3>
+            <p class="location">Verified Host</p>
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div class="host-details">
+
+            <p><strong>Work:</strong> <%= listing.owner.hostWork || "Not specified" %></p>
+
+            <p><strong>Lives in:</strong> <%= listing.owner.hostLocation || "Location not added" %></p>
+
+            <p><strong>About:</strong><br>
+                <%= listing.owner.bio || "This host has not added a bio yet." %>
+            </p>
+
+            <p><strong>Response:</strong> 
+                <%= listing.owner.responseTime || "Usually responds within 24 hours" %>
+            </p>
+
+            <a href="/listings/<%= listing._id %>/enquiry" class="btn secondary-btn">
+                Message Host
+            </a>
+
+        </div>
+
+    </div>
+</div>
 
     <!-- ================= MAP ================= -->
     <% if(listing.latitude != null && listing.longitude != null) { %>

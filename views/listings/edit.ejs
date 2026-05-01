@@ -78,6 +78,18 @@
             required
         >
     </div>
+     
+    <div class="form-group">
+    <label for="maxGuests">Maximum Guests Allowed</label>
+    <input 
+        type="number" 
+        name="maxGuests" 
+        id="maxGuests" 
+        min="1" 
+        value="<%= listing.maxGuests || 1 %>" 
+        required
+    >
+</div>
 
     <!-- Submit button -->
     <button type="submit" class="btn">Update Listing</button>

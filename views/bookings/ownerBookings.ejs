@@ -2,17 +2,28 @@
 
 <div class="page-header">
     <div>
-        <h1>Viewing / Booking Requests</h1>
-        <p class="location">Manage viewing and booking requests for your listings.</p>
+        <h1>Host Dashboard</h1>
+        <p class="location">Manage viewing requests and confirmed paid bookings separately.</p>
     </div>
 </div>
 
-<% if(bookings.length === 0) { %>
+<%
+    const viewingRequests = bookings.filter(b =>
+        b.status === "enquiry" || b.status === "approved" || b.status === "rejected"
+    );
+
+    const paidBookings = bookings.filter(b =>
+        b.status === "paid"
+    );
+%>
+
+<h2>Viewing Requests</h2>
+
+<% if(viewingRequests.length === 0) { %>
     <div class="empty-state">
-        <p>No requests yet.</p>
+        <p>No viewing requests yet.</p>
     </div>
 <% } else { %>
-
     <div class="booking-table-wrapper">
         <table class="booking-table">
             <thead>
@@ -21,76 +32,34 @@
                     <th>Listing</th>
                     <th>Guest</th>
                     <th>Status</th>
-                    <th>Check-in</th>
-                    <th>Check-out</th>
-                    <th>Guests</th>
-                    <th>Total</th>
-                    <th>Action</th>
                     <th>Viewing Date</th>
                     <th>Viewing Time</th>
+                    <th>Action</th>
                 </tr>
             </thead>
 
             <tbody>
-                <% for(let booking of bookings) { %>
+                <% for(let booking of viewingRequests) { %>
                     <tr>
-                        <td>
-                            <strong><%= booking._id.toString().slice(-8).toUpperCase() %></strong>
-                        </td>
-
-                        <td>
-                            <%= booking.listing ? booking.listing.title : "Listing unavailable" %>
-                        </td>
-
-                        <td>
-                            <%= booking.user ? booking.user.username : "Unknown guest" %>
-                        </td>
+                        <td><strong><%= booking._id.toString().slice(-8).toUpperCase() %></strong></td>
+                        <td><%= booking.listing ? booking.listing.title : "Listing unavailable" %></td>
+                        <td><%= booking.user ? booking.user.username : "Unknown guest" %></td>
 
                         <td>
                             <% if(booking.status === "enquiry") { %>
                                 <span class="status-badge pending">Viewing Request</span>
                             <% } else if(booking.status === "approved") { %>
                                 <span class="status-badge approved">Approved</span>
-                            <% } else if(booking.status === "paid") { %>
-                                <span class="status-badge paid">Confirmed</span>
                             <% } else if(booking.status === "rejected") { %>
                                 <span class="status-badge rejected">Declined</span>
-                            <% } else if(booking.status === "cancelled") { %>
-                                <span class="status-badge cancelled">Cancelled</span>
-                            <% } else { %>
-                                <span class="status-badge pending"><%= booking.status %></span>
                             <% } %>
                         </td>
 
-                        <td>
-                            <%= booking.checkIn ? booking.checkIn.toDateString() : "-" %>
-                        </td>
+                        <td><%= booking.viewingDate ? booking.viewingDate.toDateString() : "-" %></td>
+                        <td><%= booking.viewingTime || "-" %></td>
 
                         <td>
-                            <%= booking.checkOut ? booking.checkOut.toDateString() : "-" %>
-                        </td>
-
-                        <td>
-                            <%= booking.guests || "-" %>
-                        </td>
-
-                        <td>
-                            £<%= booking.totalPrice || 0 %>
-                        </td>
-
-                        <!-- VIEWING DATE -->
-                        <td>
-                            <%= booking.viewingDate ? booking.viewingDate.toDateString() : "-" %>
-                        </td>
-
-                        <!-- VIEWING TIME -->
-                        <td>
-                            <%= booking.viewingTime || "-" %>
-                        </td>
-
-                        <!-- ACTION -->
-                        <td>
-                            <% if(booking.status === "enquiry" || booking.status === "pending") { %>
+                            <% if(booking.status === "enquiry") { %>
                                 <div class="table-actions">
                                     <form action="/bookings/<%= booking._id %>/approve" method="POST">
                                         <button class="btn">Approve</button>
@@ -109,5 +78,48 @@
             </tbody>
         </table>
     </div>
+<% } %>
 
+<h2 style="margin-top: 45px;">Paid Bookings</h2>
+
+<% if(paidBookings.length === 0) { %>
+    <div class="empty-state">
+        <p>No paid bookings yet.</p>
+    </div>
+<% } else { %>
+    <div class="booking-table-wrapper">
+        <table class="booking-table">
+            <thead>
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Listing</th>
+                    <th>Guest</th>
+                    <th>Status</th>
+                    <th>Check-in</th>
+                    <th>Check-out</th>
+                    <th>Guests</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <% for(let booking of paidBookings) { %>
+                    <tr>
+                        <td><strong><%= booking._id.toString().slice(-8).toUpperCase() %></strong></td>
+                        <td><%= booking.listing ? booking.listing.title : "Listing unavailable" %></td>
+                        <td><%= booking.user ? booking.user.username : "Unknown guest" %></td>
+
+                        <td>
+                            <span class="status-badge paid">Confirmed</span>
+                        </td>
+
+                        <td><%= booking.checkIn ? booking.checkIn.toDateString() : "-" %></td>
+                        <td><%= booking.checkOut ? booking.checkOut.toDateString() : "-" %></td>
+                        <td><%= booking.guests || "-" %></td>
+                        <td>£<%= booking.totalPrice || 0 %></td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
 <% } %>

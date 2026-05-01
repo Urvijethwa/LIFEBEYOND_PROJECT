@@ -49,9 +49,17 @@ router.post("/listings/:id/book", isLoggedIn, async (req, res) => {
     // Calculate number of nights
     const nights = (endDate - startDate) / (1000 * 60 * 60 * 24);
 
-    // Validation
+  // Validation
     if (nights <= 0) {
         req.flash("error", "Check-out date must be after check-in date.");
+        return res.redirect(`/listings/${req.params.id}/book`);
+    }
+
+    // Guest capacity validation
+    const totalGuests = Number(guests);
+
+    if (totalGuests > listing.maxGuests) {
+        req.flash("error", `This property only allows up to ${listing.maxGuests} guests.`);
         return res.redirect(`/listings/${req.params.id}/book`);
     }
 

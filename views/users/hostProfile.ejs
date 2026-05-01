@@ -1,0 +1,31 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="listing-form">
+    <h2 class="form-heading">Edit Host Profile</h2>
+
+    <form action="/host/profile" method="POST">
+
+        <div class="form-group">
+            <label>About You</label>
+            <textarea name="bio"><%= currentUser.bio %></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Your Work</label>
+            <input type="text" name="hostWork" value="<%= currentUser.hostWork %>">
+        </div>
+
+        <div class="form-group">
+            <label>Location</label>
+            <input type="text" name="hostLocation" value="<%= currentUser.hostLocation %>">
+        </div>
+
+        <div class="form-group">
+            <label>Response Time</label>
+            <input type="text" name="responseTime" value="<%= currentUser.responseTime %>">
+        </div>
+
+        <button class="btn">Save Profile</button>
+
+    </form>
+</div>

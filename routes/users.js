@@ -4,39 +4,28 @@
 const express = require("express");
 const router = express.Router();
 
-// bcrypt → used for hashing passwords securely
 const bcrypt = require("bcryptjs");
-
-// User model (MongoDB collection)
 const User = require("../models/user");
 
-// Validation middleware (checks input structure)
-const { validateUser } = require("../middleware");
+// Import validation + login check
+const { validateUser, isLoggedIn } = require("../middleware");
 
 
 // ==========================================
 // FEATURE 1: SHOW REGISTER FORM
 // ==========================================
 router.get("/register", (req, res) => {
-    // Render registration page
     res.render("users/register");
 });
 
 
 // ==========================================
-// FEATURE 2: USER REGISTRATION (SECURE)
+// FEATURE 2: USER REGISTRATION
 // ==========================================
 router.post("/register", validateUser, async (req, res) => {
     try {
         const { username, email, password, role } = req.body;
 
-        // ----------------------------------
-        // PASSWORD SECURITY VALIDATION
-        // ----------------------------------
-        // Must:
-        // - be at least 6 characters
-        // - contain at least 1 number
-        // - contain at least 1 special character
         const passwordRegex = /^(?=.*[0-9])(?=.*[^A-Za-z0-9]).{6,}$/;
 
         if (!passwordRegex.test(password)) {
@@ -44,9 +33,6 @@ router.post("/register", validateUser, async (req, res) => {
             return res.redirect("/register");
         }
 
-        // ----------------------------------
-        // CHECK IF USER ALREADY EXISTS
-        // ----------------------------------
         const existingUser = await User.findOne({ email });
 
         if (existingUser) {
@@ -54,30 +40,17 @@ router.post("/register", validateUser, async (req, res) => {
             return res.redirect("/register");
         }
 
-        // ----------------------------------
-        // PASSWORD HASHING (VERY IMPORTANT)
-        // ----------------------------------
-        // bcrypt automatically:
-        // - generates a SALT
-        // - hashes the password with that salt
-        // 12 = salt rounds (higher = more secure but slower)
         const hashedPassword = await bcrypt.hash(password, 12);
 
-        // ----------------------------------
-        // CREATE USER
-        // ----------------------------------
         const newUser = new User({
             username,
             email,
-            password: hashedPassword, // NEVER store raw password
+            password: hashedPassword,
             role
         });
 
         await newUser.save();
 
-        // ----------------------------------
-        // SESSION MANAGEMENT (LOGIN AFTER REGISTER)
-        // ----------------------------------
         req.session.userId = newUser._id;
         req.session.user = newUser;
 
@@ -101,28 +74,19 @@ router.get("/login", (req, res) => {
 
 
 // ==========================================
-// FEATURE 4: USER LOGIN (AUTHENTICATION)
+// FEATURE 4: USER LOGIN
 // ==========================================
 router.post("/login", async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // ----------------------------------
-        // FIND USER BY EMAIL
-        // ----------------------------------
         const user = await User.findOne({ email });
 
-        // If user does not exist → error
         if (!user) {
             req.flash("error", "Invalid email or password.");
             return res.redirect("/login");
         }
 
-        // ----------------------------------
-        // PASSWORD COMPARISON
-        // ----------------------------------
-        // bcrypt.compare:
-        // compares entered password with hashed password
         const validPassword = await bcrypt.compare(password, user.password);
 
         if (!validPassword) {
@@ -130,9 +94,6 @@ router.post("/login", async (req, res) => {
             return res.redirect("/login");
         }
 
-        // ----------------------------------
-        // SESSION CREATION (LOGIN SUCCESS)
-        // ----------------------------------
         req.session.userId = user._id;
         req.session.user = user;
 
@@ -148,20 +109,54 @@ router.post("/login", async (req, res) => {
 
 
 // ==========================================
-// FEATURE 5: LOGOUT (SESSION DESTROY)
+// FEATURE 5: HOST PROFILE
+// ==========================================
+
+// Show host profile edit page
+router.get("/host/profile", isLoggedIn, async (req, res) => {
+    const user = await User.findById(req.session.userId);
+
+    if (!user || user.role !== "host") {
+        req.flash("error", "Only hosts can edit a host profile.");
+        return res.redirect("/listings");
+    }
+
+    res.render("users/hostProfile", { currentUser: user });
+});
+
+// Save host profile
+router.post("/host/profile", isLoggedIn, async (req, res) => {
+    const user = await User.findById(req.session.userId);
+
+    if (!user || user.role !== "host") {
+        req.flash("error", "Only hosts can update a host profile.");
+        return res.redirect("/listings");
+    }
+
+    const { bio, hostWork, hostLocation, responseTime } = req.body;
+
+    await User.findByIdAndUpdate(req.session.userId, {
+        bio,
+        hostWork,
+        hostLocation,
+        responseTime
+    });
+
+    req.flash("success", "Host profile updated successfully.");
+    res.redirect("/listings");
+});
+
+
+// ==========================================
+// FEATURE 6: LOGOUT
 // ==========================================
 router.get("/logout", (req, res) => {
-
-    // Destroy session (log user out)
     req.session.destroy((err) => {
-
         if (err) {
             return res.redirect("/listings");
         }
 
-        // Clear session cookie from browser
         res.clearCookie("connect.sid");
-
         res.redirect("/listings");
     });
 });

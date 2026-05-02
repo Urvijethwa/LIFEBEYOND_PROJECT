@@ -16,18 +16,13 @@
     <h1><%= listing.title %></h1>
 
     <!-- ================= RATING ================= -->
-    <% if(listing.reviews.length > 0) { %>
-        <p class="rating-summary">
-            ⭐ <strong><%= averageRating %></strong> / 5 
-            (<%= listing.reviews.length %> review<%= listing.reviews.length > 1 ? "s" : "" %>)
-        </p>
+   <% if(listing.reviews.length > 0) { %>
+    <p class="rating-summary">
+        ⭐ <strong><%= averageRating %></strong> / 5 
+        (<%= listing.reviews.length %> review<%= listing.reviews.length > 1 ? "s" : "" %>)
+    </p>
     <% } else { %>
         <p class="rating-summary">No ratings yet</p>
-    <% } %>
-
-    <!-- AI-style review summary -->
-    <% if(listing.reviews.length > 0) { %>
-        <p class="review-summary"><%= reviewSummary %></p>
     <% } %>
 
     <!-- ================= DETAILS ================= -->
@@ -207,14 +202,17 @@
     <% if(canReview) { %>
         <form action="/listings/<%= listing._id %>/reviews" method="POST" class="listing-form">
 
-            <div class="form-group">
-                <label>Rating</label>
-                <select name="rating" required>
-                    <option value="">Select rating</option>
-                    <option value="1">1 - Poor</option>
-                    <option value="5">5 - Excellent</option>
-                </select>
-            </div>
+           <div class="form-group">
+    <label>Rating</label>
+    <select name="rating" required>
+        <option value="">Select rating</option>
+        <option value="1">1 - Poor</option>
+        <option value="2">2 - Fair</option>
+        <option value="3">3 - Good</option>
+        <option value="4">4 - Very Good</option>
+        <option value="5">5 - Excellent</option>
+    </select>
+    </div>
 
             <div class="form-group">
                 <label>Comment</label>

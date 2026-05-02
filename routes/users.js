@@ -146,6 +146,75 @@ router.post("/host/profile", isLoggedIn, async (req, res) => {
     res.redirect("/listings");
 });
 
+// ==========================================
+// FEATURE 7: ACCOUNT MANAGEMENT PAGE
+// ==========================================
+router.get("/account", isLoggedIn, async (req, res) => {
+    const user = await User.findById(req.session.userId);
+    res.render("users/account", { user });
+});
+
+// UPDATE ACCOUNT DETAILS
+router.post("/account/update", isLoggedIn, async (req, res) => {
+    try {
+        const { username, email } = req.body;
+
+        await User.findByIdAndUpdate(req.session.userId, {
+            username,
+            email
+        });
+
+        req.flash("success", "Account updated successfully.");
+        res.redirect("/account");
+
+    } catch (err) {
+        console.log(err);
+        req.flash("error", "Update failed.");
+        res.redirect("/account");
+    }
+});
+
+// CHANGE PASSWORD
+router.post("/account/password", isLoggedIn, async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+
+        const user = await User.findById(req.session.userId);
+
+        const valid = await bcrypt.compare(currentPassword, user.password);
+
+        if (!valid) {
+            req.flash("error", "Current password incorrect.");
+            return res.redirect("/account");
+        }
+
+        const hashed = await bcrypt.hash(newPassword, 12);
+
+        await User.findByIdAndUpdate(req.session.userId, {
+            password: hashed
+        });
+
+        req.flash("success", "Password updated.");
+        res.redirect("/account");
+
+    } catch (err) {
+        console.log(err);
+        req.flash("error", "Password change failed.");
+        res.redirect("/account");
+    }
+});
+
+// DELETE ACCOUNT
+router.post("/account/delete", isLoggedIn, async (req, res) => {
+    await User.findByIdAndDelete(req.session.userId);
+
+    req.session.destroy();
+    res.clearCookie("connect.sid");
+
+    req.flash("success", "Account deleted.");
+    res.redirect("/listings");
+});
+
 
 // ==========================================
 // FEATURE 6: LOGOUT

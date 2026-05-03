@@ -1,4 +1,4 @@
-require("dotenv").config(); // Load environment variables (.env)
+require("dotenv").config();
 
 const express = require("express");
 const path = require("path");
@@ -10,32 +10,30 @@ const MongoStore = require("connect-mongo").default;
 const flash = require("connect-flash");
 
 // Import routes
+const indexRoutes = require("./routes/index");
 const listingRoutes = require("./routes/listings");
 const userRoutes = require("./routes/users");
 const wishlistRoutes = require("./routes/wishlist");
 const reviewRoutes = require("./routes/reviews");
 const bookingRoutes = require("./routes/bookings");
+
 const User = require("./models/user");
 
 const app = express();
 
-// DB + session config
 const MONGO_URL = process.env.MONGO_URL || "mongodb://127.0.0.1:27017/lifebeyond";
 const SESSION_SECRET = process.env.SESSION_SECRET || "mysecretkey";
 
-// Connect to MongoDB
 mongoose.connect(MONGO_URL)
     .then(() => console.log("Connected to DB"))
     .catch((err) => console.log(err));
 
-// Store sessions in MongoDB
 const store = MongoStore.create({
     mongoUrl: MONGO_URL,
     crypto: { secret: SESSION_SECRET },
-    touchAfter: 24 * 3600 // reduces DB writes
+    touchAfter: 24 * 3600
 });
 
-// Session settings
 const sessionOptions = {
     store,
     secret: SESSION_SECRET,
@@ -44,40 +42,45 @@ const sessionOptions = {
     cookie: {
         expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
         maxAge: 7 * 24 * 60 * 60 * 1000,
-        httpOnly: true // security
+        httpOnly: true
     }
 };
 
 // Middleware
-app.use(express.urlencoded({ extended: true })); // read form data
-app.use(methodOverride("_method")); // support PUT/DELETE
-app.use(express.static(path.join(__dirname, "public"))); // static files
-app.use(session(sessionOptions)); // session handling
-app.use(flash()); // flash messages
+app.use(express.urlencoded({ extended: true }));
+app.use(methodOverride("_method"));
+app.use(express.static(path.join(__dirname, "public")));
+app.use(session(sessionOptions));
+app.use(flash());
 
 // EJS setup
 app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// Global variables (available in all views)
+// Global variables
 app.use(async (req, res, next) => {
-    if (req.session.userId) {
-        const user = await User.findById(req.session.userId);
-        res.locals.currentUser = user;
-        res.locals.loggedInUser = user;
-    } else {
-        res.locals.currentUser = null;
-        res.locals.loggedInUser = null;
+    try {
+        if (req.session.userId) {
+            const user = await User.findById(req.session.userId);
+            res.locals.currentUser = user;
+            res.locals.loggedInUser = user;
+        } else {
+            res.locals.currentUser = null;
+            res.locals.loggedInUser = null;
+        }
+
+        res.locals.success = req.flash("success");
+        res.locals.error = req.flash("error");
+
+        next();
+    } catch (err) {
+        next(err);
     }
-
-    res.locals.success = req.flash("success");
-    res.locals.error = req.flash("error");
-
-    next();
 });
 
 // Routes
+app.use("/", indexRoutes);
 app.use("/", userRoutes);
 app.use("/", wishlistRoutes);
 app.use("/", bookingRoutes);

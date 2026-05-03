@@ -1102,3 +1102,19 @@ footer h4 {
     border: 1px solid #F3B3B3;
     background: #FFF7F7;
 }
+
+.forgot-password-text {
+    text-align: center;
+    color: #6B7280;
+    font-size: 0.95rem;
+    margin-top: 10px;
+}
+
+.forgot-link {
+    color: #C59D5F;
+    font-weight: 600;
+}
+
+.forgot-link:hover {
+    text-decoration: underline;
+}

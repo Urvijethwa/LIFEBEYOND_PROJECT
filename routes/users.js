@@ -206,13 +206,23 @@ router.post("/account/password", isLoggedIn, async (req, res) => {
 
 // DELETE ACCOUNT
 router.post("/account/delete", isLoggedIn, async (req, res) => {
-    await User.findByIdAndDelete(req.session.userId);
+    try {
+        await User.findByIdAndDelete(req.session.userId);
 
-    req.session.destroy();
-    res.clearCookie("connect.sid");
+        req.session.destroy((err) => {
+            if (err) {
+                return res.redirect("/account");
+            }
 
-    req.flash("success", "Account deleted.");
-    res.redirect("/listings");
+            res.clearCookie("connect.sid");
+            res.redirect("/listings");
+        });
+
+    } catch (err) {
+        console.log(err);
+        req.flash("error", "Account could not be deleted.");
+        res.redirect("/account");
+    }
 });
 
 

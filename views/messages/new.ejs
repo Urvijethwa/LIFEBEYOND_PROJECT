@@ -1,0 +1,19 @@
+<% layout("layouts/boilerplate") %>
+
+<h1 class="form-heading">Message Host</h1>
+
+<form action="/messages/new/<%= listing._id %>" method="POST" class="listing-form">
+    <h2><%= listing.title %></h2>
+
+    <div class="form-group">
+        <label>Your Message</label>
+        <textarea 
+            name="message" 
+            placeholder="Write your message to the host..."
+            required
+        ></textarea>
+    </div>
+
+    <button class="btn">Send Message</button>
+    <a href="/listings/<%= listing._id %>" class="btn secondary-btn">Cancel</a>
+</form>

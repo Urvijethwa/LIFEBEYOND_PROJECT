@@ -1,0 +1,43 @@
+<% layout("layouts/boilerplate") %>
+
+<h1 class="form-heading">Messages</h1>
+
+<% if(messages.length === 0) { %>
+    <div class="empty-state">
+        <p>No messages yet.</p>
+    </div>
+<% } else { %>
+
+    <div class="account-container">
+        <% for(let msg of messages) { %>
+            <div class="account-card">
+                <h2><%= msg.listing ? msg.listing.title : "Listing unavailable" %></h2>
+
+                <p><strong>From:</strong> <%= msg.sender ? msg.sender.username : "Unknown" %></p>
+                <p><strong>To:</strong> <%= msg.receiver ? msg.receiver.username : "Unknown" %></p>
+
+                <p><strong>Message:</strong></p>
+                <p><%= msg.message %></p>
+
+                <p><strong>Status:</strong> <%= msg.status %></p>
+
+                <% if(msg.reply) { %>
+                    <hr>
+                    <p><strong>Host Reply:</strong></p>
+                    <p><%= msg.reply %></p>
+                <% } %>
+
+                <% if(currentUser && msg.receiver && currentUser._id.toString() === msg.receiver._id.toString() && !msg.reply) { %>
+                    <form action="/messages/<%= msg._id %>/reply" method="POST">
+                        <div class="form-group">
+                            <label>Reply</label>
+                            <textarea name="reply" required></textarea>
+                        </div>
+                        <button class="btn">Send Reply</button>
+                    </form>
+                <% } %>
+            </div>
+        <% } %>
+    </div>
+
+<% } %>

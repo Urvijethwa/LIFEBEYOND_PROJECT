@@ -32,7 +32,15 @@
 
     <div class="form-group">
         <label for="guests">Number of Guests</label>
-        <input type="number" name="guests" id="guests" min="1" required>
+       <select name="guests" required>
+    <option value="">Select number of guests</option>
+
+    <% for(let i = 1; i <= (listing.maxGuests || 1); i++) { %>
+        <option value="<%= i %>">
+            <%= i %> guest<%= i > 1 ? "s" : "" %>
+        </option>
+    <% } %>
+</select>
         <!-- Minimum 1 guest to prevent invalid bookings -->
     </div>
 

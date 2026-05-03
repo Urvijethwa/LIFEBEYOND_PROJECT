@@ -16,6 +16,7 @@ const userRoutes = require("./routes/users");
 const wishlistRoutes = require("./routes/wishlist");
 const reviewRoutes = require("./routes/reviews");
 const bookingRoutes = require("./routes/bookings");
+const messageRoutes = require("./routes/messages");
 
 const User = require("./models/user");
 
@@ -52,6 +53,7 @@ app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(session(sessionOptions));
 app.use(flash());
+app.use("/", messageRoutes);
 
 // EJS setup
 app.engine("ejs", ejsMate);

@@ -10,7 +10,7 @@
     <div class="nav-right" id="navMenu">
         <a href="/listings">Home</a>
 
-        <% if(currentUser) { %>
+        <% if(typeof currentUser !== "undefined" && currentUser) { %>
 
             <% if(currentUser.role === "host") { %>
                 <a href="/listings/new">Add Listing</a>
@@ -24,6 +24,7 @@
                 <a href="/my-bookings">My Bookings</a>
             <% } %>
 
+            <a href="/messages">Messages</a>
             <a href="/account">Account</a>
             <a href="/logout">Logout</a>
 

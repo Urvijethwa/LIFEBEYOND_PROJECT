@@ -137,7 +137,12 @@
                     <% } %>
 
                     <!-- Description -->
-                    <p><%= listing.description %></p>
+                    <p class="card-description">
+                    <%= listing.description.length > 95 
+                        ? listing.description.substring(0, 95) + "..." 
+                        : listing.description 
+                    %>
+                    </p>
 
                     <!-- Price -->
                     <p class="price">£<%= listing.price %></p>

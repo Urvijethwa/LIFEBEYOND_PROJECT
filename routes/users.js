@@ -7,6 +7,11 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
 
+const Listing = require("../models/listing");
+const Booking = require("../models/booking");
+const Message = require("../models/message");
+const Review = require("../models/review");
+
 // Import validation + login check
 const { validateUser, isLoggedIn } = require("../middleware");
 
@@ -207,12 +212,21 @@ router.post("/account/password", isLoggedIn, async (req, res) => {
 // DELETE ACCOUNT
 router.post("/account/delete", isLoggedIn, async (req, res) => {
     try {
-        await User.findByIdAndDelete(req.session.userId);
+        const userId = req.session.userId;
+
+        await Listing.deleteMany({ owner: userId });
+        await Booking.deleteMany({
+            $or: [{ user: userId }, { owner: userId }]
+        });
+        await Message.deleteMany({
+            $or: [{ sender: userId }, { receiver: userId }]
+        });
+        await Review.deleteMany({ author: userId });
+
+        await User.findByIdAndDelete(userId);
 
         req.session.destroy((err) => {
-            if (err) {
-                return res.redirect("/account");
-            }
+            if (err) return res.redirect("/account");
 
             res.clearCookie("connect.sid");
             res.redirect("/listings");
@@ -220,7 +234,6 @@ router.post("/account/delete", isLoggedIn, async (req, res) => {
 
     } catch (err) {
         console.log(err);
-        req.flash("error", "Account could not be deleted.");
         res.redirect("/account");
     }
 });

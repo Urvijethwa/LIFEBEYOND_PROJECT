@@ -121,7 +121,9 @@
                 <%= listing.owner.responseTime || "Usually responds within 24 hours" %>
             </p>
 
-            <a href="/messages/new/<%= listing._id %>" class="btn secondary-btn">Message Host</a>
+            <a href="/listings/<%= listing._id %>/enquiry" class="btn secondary-btn">
+                Message Host
+            </a>
 
         </div>
 

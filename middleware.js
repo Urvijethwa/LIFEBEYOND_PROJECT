@@ -5,7 +5,7 @@ const Review = require("./models/review");
 // Import Joi validation schemas
 const { listingSchema, userSchema, reviewSchema } = require("./schema");
 
-// 🔐 Check if user is logged in
+// Check if user is logged in
 module.exports.isLoggedIn = (req, res, next) => {
     if (!req.session.userId) {
         req.flash("error", "You must be logged in first.");
@@ -14,7 +14,7 @@ module.exports.isLoggedIn = (req, res, next) => {
     next(); // allow access
 };
 
-// 🏠 Check if current user owns the listing
+//Check if current user owns the listing
 module.exports.isOwner = async (req, res, next) => {
     const { id } = req.params;
     const listing = await Listing.findById(id);
@@ -33,7 +33,7 @@ module.exports.isOwner = async (req, res, next) => {
     next();
 };
 
-// ✍️ Check if user wrote the review
+//Check if user wrote the review
 module.exports.isReviewAuthor = async (req, res, next) => {
     const { id, reviewId } = req.params;
     const review = await Review.findById(reviewId);
@@ -52,7 +52,7 @@ module.exports.isReviewAuthor = async (req, res, next) => {
     next();
 };
 
-// ✅ Validate listing form data (Joi)
+//Validate listing form data (Joi)
 module.exports.validateListing = (req, res, next) => {
     const { error } = listingSchema.validate(req.body);
 
@@ -64,7 +64,7 @@ module.exports.validateListing = (req, res, next) => {
     next();
 };
 
-// 👤 Validate user registration data
+//Validate user registration data
 module.exports.validateUser = (req, res, next) => {
     const { error } = userSchema.validate(req.body);
 
@@ -76,7 +76,7 @@ module.exports.validateUser = (req, res, next) => {
     next();
 };
 
-// ⭐ Validate review form data
+//Validate review form data
 module.exports.validateReview = (req, res, next) => {
     const { error } = reviewSchema.validate(req.body);
 

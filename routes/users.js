@@ -199,7 +199,7 @@ router.post("/account/password", isLoggedIn, async (req, res) => {
             password: hashed
         });
 
-        req.flash("success", "Password updated.");
+        req.flash("success", "Password updated successfully.");
         res.redirect("/account");
 
     } catch (err) {

@@ -360,7 +360,11 @@ router.get("/:id", async (req, res) => {
     // Nearby listings (geospatial feature)
     let nearbyListings = [];
     if (listing.latitude && listing.longitude) {
-        const allListings = await Listing.find({ _id: { $ne: listing._id } });
+        const allListings = await Listing.find({
+    _id: { $ne: listing._id },
+    latitude: { $ne: null },
+    longitude: { $ne: null }
+});
 
         nearbyListings = allListings
             .map((l) => ({

@@ -53,7 +53,6 @@ app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(session(sessionOptions));
 app.use(flash());
-app.use("/", messageRoutes);
 
 // EJS setup
 app.engine("ejs", ejsMate);
@@ -86,6 +85,7 @@ app.use("/", indexRoutes);
 app.use("/", userRoutes);
 app.use("/", wishlistRoutes);
 app.use("/", bookingRoutes);
+app.use("/", messageRoutes);
 app.use("/listings", listingRoutes);
 app.use("/listings/:id/reviews", reviewRoutes);
 

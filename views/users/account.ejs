@@ -55,15 +55,21 @@
     </p>
 </div>
 
-    <div class="account-card danger-zone">
-        <h2>Danger Zone</h2>
+    <div class="account-warning-box">
+    <h2>Delete Account</h2>
 
-        <form action="/account/delete" method="POST">
-            <button class="btn delete-btn" onclick="return confirm('Are you sure you want to delete your account?')">
-                Delete Account
-            </button>
-        </form>
-    </div>
+    <p class="account-warning-text">
+        Deleting your account is permanent and cannot be undone.
+        This action will remove your profile, bookings, wishlist,
+        messages, reviews, and any associated listings from LifeBeyond.
+    </p>
+
+    <form action="/account/delete" method="POST">
+        <button class="btn delete-btn">
+            Permanently Delete Account
+        </button>
+    </form>
+</div>
 
 </div>
 

@@ -1,3 +1,4 @@
+//backend protection 
 // Import models
 const Listing = require("./models/listing");
 const Review = require("./models/review");
@@ -14,19 +15,35 @@ module.exports.isLoggedIn = (req, res, next) => {
     next(); // allow access
 };
 
+// Only guests can book properties
+module.exports.isGuest = (req, res, next) => {
+
+    if (!req.session.user) {
+        req.flash("error", "You must be logged in.");
+        return res.redirect("/login");
+    }
+
+    if (req.session.user.role !== "guest") {
+        req.flash("error", "Hosts cannot book properties.");
+        return res.redirect("/listings");
+    }
+
+    next();
+};
+
 //Check if current user owns the listing
 module.exports.isOwner = async (req, res, next) => {
     const { id } = req.params;
+
     const listing = await Listing.findById(id);
 
     if (!listing) {
         req.flash("error", "Listing not found.");
-        return res.redirect("/");
+        return res.redirect("/listings");
     }
 
-    // Only owner can edit/delete
-    if (!listing.owner || !listing.owner.equals(req.session.userId)) {
-        req.flash("error", "You do not have permission.");
+    if (!listing.owner || String(listing.owner) !== String(req.session.userId)) {
+        req.flash("error", "You do not have permission to edit this listing.");
         return res.redirect(`/listings/${id}`);
     }
 
@@ -54,11 +71,14 @@ module.exports.isReviewAuthor = async (req, res, next) => {
 
 //Validate listing form data (Joi)
 module.exports.validateListing = (req, res, next) => {
-    const { error } = listingSchema.validate(req.body);
+    const { error } = listingSchema.validate(req.body, { abortEarly: false });
 
     if (error) {
-        req.flash("error", error.details[0].message);
-        return res.redirect("back");
+        const messages = error.details.map(detail => detail.message).join(" ");
+        req.flash("error", messages);
+
+        const backURL = req.get("Referrer") || "/listings";
+        return res.redirect(backURL);
     }
 
     next();

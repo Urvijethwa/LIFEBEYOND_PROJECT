@@ -8,9 +8,7 @@
     Form to update an existing listing
     Uses method override (?_method=PUT) because HTML forms only support GET/POST
 -->
-<form action="/listings/<%= listing._id %>?_method=PUT" method="POST" class="listing-form">
-
-    <!-- Title field -->
+<form action="/listings/<%= listing._id %>?_method=PUT" method="POST" class="listing-form" id="listingForm" novalidate>    <!-- Title field -->
     <div class="form-group">
         <label for="title">Title</label>
         <input 
@@ -19,6 +17,7 @@
             value="<%= listing.title %>" 
             required
         >
+         <div class="validation-message" id="titleError"></div>
         <!-- Pre-filled with existing title -->
     </div>
 
@@ -30,6 +29,7 @@
             id="description" 
             required
         ><%= listing.description %></textarea>
+         <div class="validation-message" id="descriptionError"></div>
         <!-- Existing description shown so user can edit -->
     </div>
 
@@ -51,9 +51,11 @@
             name="price" 
             id="price" 
             type="number" 
+            min="1"
             value="<%= listing.price %>" 
             required
         >
+         <div class="validation-message" id="priceError"></div>
         <!-- Required to ensure valid listing -->
     </div>
 
@@ -66,6 +68,7 @@
             value="<%= listing.location %>" 
             required
         >
+         <div class="validation-message" id="locationError"></div>
     </div>
 
     <!-- Country -->
@@ -77,20 +80,119 @@
             value="<%= listing.country %>" 
             required
         >
+         <div class="validation-message" id="countryError"></div>
     </div>
      
     <div class="form-group">
     <label for="maxGuests">Maximum Guests Allowed</label>
     <input 
         type="number" 
+        min="1"
         name="maxGuests" 
         id="maxGuests" 
         min="1" 
         value="<%= listing.maxGuests || 1 %>" 
         required
     >
+     <div class="validation-message" id="maxGuestsError"></div>
 </div>
 
     <!-- Submit button -->
     <button type="submit" class="btn">Update Listing</button>
 </form>
+
+<script>
+    const listingForm = document.getElementById("listingForm");
+
+    const fields = {
+        title: document.getElementById("title"),
+        description: document.getElementById("description"),
+        price: document.getElementById("price"),
+        location: document.getElementById("location"),
+        country: document.getElementById("country"),
+        maxGuests: document.getElementById("maxGuests")
+    };
+
+    const errors = {
+        title: document.getElementById("titleError"),
+        description: document.getElementById("descriptionError"),
+        price: document.getElementById("priceError"),
+        location: document.getElementById("locationError"),
+        country: document.getElementById("countryError"),
+        maxGuests: document.getElementById("maxGuestsError")
+    };
+
+    function hasLetter(value) {
+        return /[a-zA-Z]/.test(value);
+    }
+
+    function showError(fieldName, message) {
+        fields[fieldName].classList.add("input-error");
+        errors[fieldName].textContent = message;
+    }
+
+    function clearError(fieldName) {
+        fields[fieldName].classList.remove("input-error");
+        errors[fieldName].textContent = "";
+    }
+
+    function validateListingForm() {
+        let isValid = true;
+
+        Object.keys(fields).forEach(clearError);
+
+        if (!fields.title.value.trim()) {
+            showError("title", "Title is required.");
+            isValid = false;
+        } else if (fields.title.value.trim().length < 5 || !hasLetter(fields.title.value)) {
+            showError("title", "Title must be at least 5 characters and include letters.");
+            isValid = false;
+        }
+
+        if (!fields.description.value.trim()) {
+            showError("description", "Description is required.");
+            isValid = false;
+        } else if (fields.description.value.trim().length < 20) {
+            showError("description", "Description must be at least 20 characters.");
+            isValid = false;
+        }
+
+        if (!fields.price.value || Number(fields.price.value) <= 0) {
+            showError("price", "Price must be greater than 0.");
+            isValid = false;
+        }
+
+        if (!fields.location.value.trim()) {
+            showError("location", "Location is required.");
+            isValid = false;
+        } else if (fields.location.value.trim().length < 3 || !hasLetter(fields.location.value)) {
+            showError("location", "Location must be a valid place name.");
+            isValid = false;
+        }
+
+        if (!fields.country.value.trim()) {
+            showError("country", "Country is required.");
+            isValid = false;
+        } else if (fields.country.value.trim().length < 3 || !hasLetter(fields.country.value)) {
+            showError("country", "Country must be a valid country name.");
+            isValid = false;
+        }
+
+        if (!fields.maxGuests.value || Number(fields.maxGuests.value) < 1 || Number(fields.maxGuests.value) > 20) {
+            showError("maxGuests", "Maximum guests must be between 1 and 20.");
+            isValid = false;
+        }
+
+        return isValid;
+    }
+
+    Object.keys(fields).forEach((fieldName) => {
+        fields[fieldName].addEventListener("input", validateListingForm);
+    });
+
+    listingForm.addEventListener("submit", function (e) {
+        if (!validateListingForm()) {
+            e.preventDefault();
+        }
+    });
+</script>

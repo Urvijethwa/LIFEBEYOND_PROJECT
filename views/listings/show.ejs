@@ -1,272 +1,282 @@
 <% layout("layouts/boilerplate") %>
-<!-- Uses main layout -->
 
-<div class="show-container">
+<div class="listing-show-page">
 
-    <!-- ================= IMAGE ================= -->
-    <img 
-        src="<%= listing.image %>" 
-        alt="<%= listing.title %>" 
-        class="show-img"
-        onerror="this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000'"
-    >
-    <!-- Displays listing image with fallback if broken -->
+    <a href="/listings" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> Back to listings
+    </a>
 
-    <!-- ================= TITLE ================= -->
-    <h1><%= listing.title %></h1>
+    <!-- HEADER -->
+    <div class="show-header">
+        <div>
+            <h1><%= listing.title %></h1>
 
-    <!-- ================= RATING ================= -->
-   <% if(listing.reviews.length > 0) { %>
-    <p class="rating-summary">
-        ⭐ <strong><%= averageRating %></strong> / 5 
-        (<%= listing.reviews.length %> review<%= listing.reviews.length > 1 ? "s" : "" %>)
-    </p>
-    <% } else { %>
-        <p class="rating-summary">No ratings yet</p>
-    <% } %>
+            <div class="show-meta">
+                <% if(listing.reviews.length > 0) { %>
+                    <span>⭐ <strong><%= averageRating %></strong> · <%= listing.reviews.length %> review<%= listing.reviews.length > 1 ? "s" : "" %></span>
+                <% } else { %>
+                    <span>New listing</span>
+                <% } %>
 
-    <!-- ================= DETAILS ================= -->
-    <p><%= listing.description %></p>
-
-    <p class="price"><strong>£<%= listing.price %></strong></p>
-
-    <p class="location">
-        <%= listing.location %>, <%= listing.country %>
-    </p>
-
-    <p class="location">
-        <strong>Guest Capacity:</strong> 
-        Up to <%= listing.maxGuests || 1 %> guest<%= (listing.maxGuests || 1) > 1 ? "s" : "" %>
-    </p>
-
-    <% if(listing.owner) { %>
-        <p class="location">Created by: <%= listing.owner.username %></p>
-    <% } %>
-
-    <div class="action-buttons">
-
-        <!-- Back button -->
-        <a href="/listings" class="btn secondary-btn">Back</a>
-
-        <!-- Guest actions (not owner) -->
-        <% if(currentUser && listing.owner && currentUser._id.toString() !== listing.owner._id.toString()) { %>
-
-            <!-- Enquiry -->
-            <a href="/listings/<%= listing._id %>/enquiry" class="btn secondary-btn">Book Viewing</a>
-            <!-- Booking -->
-            <a href="/listings/<%= listing._id %>/book" class="btn">Book Now</a>
-
-            <!-- Wishlist toggle -->
-            <% if(isSaved) { %>
-                <form action="/listings/<%= listing._id %>/remove-wishlist" method="POST">
-                    <button class="wishlist-btn active">
-                        <i class="fa-solid fa-heart"></i>
-                    </button>
-                </form>
-            <% } else { %>
-                <form action="/listings/<%= listing._id %>/wishlist" method="POST">
-                    <button class="wishlist-btn">
-                        <i class="fa-regular fa-heart"></i>
-                    </button>
-                </form>
-            <% } %>
-
-        <% } %>
-
-        <!-- Owner actions -->
-        <% if(currentUser && listing.owner && currentUser._id.toString() === listing.owner._id.toString()) { %>
-
-            <!-- Edit -->
-            <a href="/listings/<%= listing._id %>/edit" class="btn">Edit</a>
-
-            <!-- Delete -->
-            <form action="/listings/<%= listing._id %>?_method=DELETE" method="POST">
-                <button class="btn delete-btn">Delete</button>
-            </form>
-
-        <% } %>
-    </div>
-
-    <hr>
-
-    <hr>
-
-<div class="host-section">
-    <h2>Meet Your Host</h2>
-
-    <div class="host-card">
-
-        <!-- LEFT SIDE -->
-        <div class="host-profile">
-            <div class="host-avatar">
-                <%= listing.owner.username.charAt(0).toUpperCase() %>
+                <span>
+                    <i class="fa-solid fa-location-dot"></i>
+                    <%= listing.location %>, <%= listing.country %>
+                </span>
             </div>
-
-            <h3><%= listing.owner.username %></h3>
-            <p class="location">Verified Host</p>
         </div>
-
-        <!-- RIGHT SIDE -->
-        <div class="host-details">
-
-            <p><strong>Work:</strong> <%= listing.owner.hostWork || "Not specified" %></p>
-
-            <p><strong>Lives in:</strong> <%= listing.owner.hostLocation || "Location not added" %></p>
-
-            <p><strong>About:</strong><br>
-                <%= listing.owner.bio || "This host has not added a bio yet." %>
-            </p>
-
-            <p><strong>Response:</strong> 
-                <%= listing.owner.responseTime || "Usually responds within 24 hours" %>
-            </p>
-
-            <a href="/messages/new/<%= listing._id %>" class="btn secondary-btn">
-                Message Host
-            </a>
-
-        </div>
-
     </div>
-</div>
 
-    <!-- ================= MAP ================= -->
-    <% if(listing.latitude != null && listing.longitude != null) { %>
-        <div class="map-section">
-            <h2>Location on Map</h2>
+    <!-- HERO IMAGE -->
+    <div class="show-hero">
+        <img 
+            src="<%= listing.image %>" 
+            alt="<%= listing.title %>"
+            onerror="this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000'"
+        >
+    </div>
 
-            <!-- Pass coordinates to JS -->
-            <div 
-                id="map"
-                data-lat="<%= listing.latitude %>"
-                data-lng="<%= listing.longitude %>"
-                data-title="<%= listing.title %>"
-            ></div>
-        </div>
+    <!-- MAIN CONTENT -->
+    <div class="show-grid">
 
-        <!-- Leaflet map script -->
-        <script>
-            window.addEventListener("load", function () {
-                const mapElement = document.getElementById("map");
+        <!-- LEFT CONTENT -->
+        <div class="show-main">
 
-                const lat = parseFloat(mapElement.dataset.lat);
-                const lng = parseFloat(mapElement.dataset.lng);
-                const title = mapElement.dataset.title;
+            <section class="show-section">
+                <h2>About this stay</h2>
+                <p class="show-description"><%= listing.description %></p>
+            </section>
 
-                const map = L.map("map").setView([lat, lng], 13);
+            <section class="show-section">
+                <h2>Property highlights</h2>
 
-                L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+                <div class="highlight-grid">
+                    <div class="highlight-card">
+                        <i class="fa-solid fa-users"></i>
+                        <div>
+                            <strong>Guest capacity</strong>
+                            <p>Up to <%= listing.maxGuests || 1 %> guest<%= (listing.maxGuests || 1) > 1 ? "s" : "" %></p>
+                        </div>
+                    </div>
 
-                L.marker([lat, lng])
-                    .addTo(map)
-                    .bindPopup(title)
-                    .openPopup();
-            });
-        </script>
-    <% } %>
+                    <div class="highlight-card">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                        <div>
+                            <strong>Location based</strong>
+                            <p>Map and nearby listings available</p>
+                        </div>
+                    </div>
 
-    <!-- ================= NEARBY LISTINGS ================= -->
-    <% if(nearbyListings && nearbyListings.length > 0) { %>
+                    <div class="highlight-card">
+                        <i class="fa-solid fa-star"></i>
+                        <div>
+                            <strong>Guest feedback</strong>
+                            <p><%= listing.reviews.length %> review<%= listing.reviews.length !== 1 ? "s" : "" %></p>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
-        <h2>Nearby Listings</h2>
+            <!-- HOST SECTION -->
+            <% if(listing.owner) { %>
+                <section class="show-section">
+                    <h2>Meet your host</h2>
 
-        <div class="card-container">
-            <% for(let nearby of nearbyListings) { %>
-
-                <a href="/listings/<%= nearby._id %>" class="listing-link">
-                    <div class="card">
-
-                        <img src="<%= nearby.image %>" class="card-img">
-
-                        <div class="card-body">
-                            <h3><%= nearby.title %></h3>
-                            <p><%= nearby.description %></p>
-                            <p class="price">£<%= nearby.price %></p>
-                            <p class="location"><%= nearby.location %>, <%= nearby.country %></p>
-                            <p class="card-rating">
-                                <strong><%= nearby.distance %> km away</strong>
-                            </p>
+                    <div class="modern-host-card">
+                        <div class="modern-host-left">
+                            <div class="host-avatar">
+                                <%= listing.owner.username.charAt(0).toUpperCase() %>
+                            </div>
+                            <h3><%= listing.owner.username %></h3>
+                            <p>Verified Host</p>
                         </div>
 
+                        <div class="modern-host-right">
+                            <p><strong>Work:</strong> <%= listing.owner.hostWork || "Not specified" %></p>
+                            <p><strong>Lives in:</strong> <%= listing.owner.hostLocation || "Location not added" %></p>
+                            <p><strong>Response:</strong> <%= listing.owner.responseTime || "Usually responds within 24 hours" %></p>
+                            <p><strong>About:</strong> <%= listing.owner.bio || "This host has not added a bio yet." %></p>
+
+                            <% if(currentUser && listing.owner && String(currentUser._id) !== String(listing.owner._id)) { %>
+                                <a href="/messages/new/<%= listing._id %>" class="btn secondary-btn host-message-btn">
+                                    Message Host
+                                </a>
+                            <% } %>
+                        </div>
                     </div>
-                </a>
-
+                </section>
             <% } %>
-        </div>
-    <% } %>
 
-    <!-- ================= REVIEWS ================= -->
-    <h2 id="reviews">Reviews</h2>
+            <!-- MAP -->
+            <% if(listing.latitude != null && listing.longitude != null) { %>
+                <section class="show-section">
+                    <h2>Location on map</h2>
 
-    <!-- Add review form -->
-    <% if(canReview) { %>
-        <form action="/listings/<%= listing._id %>/reviews" method="POST" class="listing-form">
+                    <div 
+                        id="map"
+                        data-lat="<%= listing.latitude %>"
+                        data-lng="<%= listing.longitude %>"
+                        data-title="<%= listing.title %>"
+                    ></div>
+                </section>
 
-           <div class="form-group">
-    <label>Rating</label>
-    <select name="rating" required>
-        <option value="">Select rating</option>
-        <option value="1">1 - Poor</option>
-        <option value="2">2 - Fair</option>
-        <option value="3">3 - Good</option>
-        <option value="4">4 - Very Good</option>
-        <option value="5">5 - Excellent</option>
-    </select>
-    </div>
+                <script>
+                    window.addEventListener("load", function () {
+                        const mapElement = document.getElementById("map");
 
-            <div class="form-group">
-                <label>Comment</label>
-                <textarea name="comment" required></textarea>
-            </div>
+                        if (!mapElement) return;
 
-            <button class="btn">Add Review</button>
-        </form>
+                        const lat = parseFloat(mapElement.dataset.lat);
+                        const lng = parseFloat(mapElement.dataset.lng);
+                        const title = mapElement.dataset.title;
 
-    <% } else if(currentUser) { %>
+                        const map = L.map("map").setView([lat, lng], 13);
 
-        <p>You can leave a review after completing a paid booking.</p>
+                        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
-    <% } else { %>
+                        L.marker([lat, lng])
+                            .addTo(map)
+                            .bindPopup(title)
+                            .openPopup();
+                    });
+                </script>
+            <% } %>
 
-        <p>Login to book and review this property.</p>
+            <!-- NEARBY LISTINGS -->
+            <% if(nearbyListings && nearbyListings.length > 0) { %>
+                <section class="show-section">
+                    <h2>Nearby listings</h2>
 
-    <% } %>
+                    <div class="nearby-grid">
+                        <% for(let nearby of nearbyListings) { %>
+                            <a href="/listings/<%= nearby._id %>" class="nearby-card">
+                                <img src="<%= nearby.image %>" alt="<%= nearby.title %>">
+                                <div>
+                                    <h3><%= nearby.title %></h3>
+                                    <p><%= nearby.location %>, <%= nearby.country %></p>
+                                    <strong>£<%= nearby.price %> / night</strong>
+                                    <span><%= nearby.distance.toFixed(1) %> km away</span>
+                                </div>
+                            </a>
+                        <% } %>
+                    </div>
+                </section>
+            <% } %>
 
-    <!-- Display reviews -->
-    <div class="review-container">
-        <% for(let review of listing.reviews) { %>
+            <!-- REVIEWS -->
+            <section class="show-section" id="reviews">
+                <h2>Reviews</h2>
 
-            <div class="review-card">
+                <% if(canReview) { %>
+                    <form action="/listings/<%= listing._id %>/reviews" method="POST" class="listing-form compact-review-form">
+                        <div class="form-group">
+                            <label>Rating</label>
+                            <select name="rating" required>
+                                <option value="">Select rating</option>
+                                <option value="1">1 - Poor</option>
+                                <option value="2">2 - Fair</option>
+                                <option value="3">3 - Good</option>
+                                <option value="4">4 - Very Good</option>
+                                <option value="5">5 - Excellent</option>
+                            </select>
+                        </div>
 
-                <!-- Star rating -->
-                <p>
-                    <% for(let i = 1; i <= 5; i++) { %>
-                        <%= i <= review.rating ? "⭐" : "☆" %>
-                    <% } %>
-                </p>
+                        <div class="form-group">
+                            <label>Comment</label>
+                            <textarea name="comment" required></textarea>
+                        </div>
 
-                <p><%= review.comment %></p>
-
-                <!-- Author -->
-                <% if(review.author) { %>
-                    <p>By: <%= review.author.username %></p>
-                <% } %>
-
-                <!-- Delete review -->
-                <% if(currentUser && review.author && currentUser._id.toString() === review.author._id.toString()) { %>
-                    <form action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE" method="POST">
-                        <button class="btn delete-btn">Delete Review</button>
+                        <button class="btn">Add Review</button>
                     </form>
+                <% } else if(currentUser) { %>
+                    <p class="muted-text">You can leave a review after completing a paid booking.</p>
+                <% } else { %>
+                    <p class="muted-text">Login to book and review this property.</p>
                 <% } %>
 
+                <% if(listing.reviews.length === 0) { %>
+                    <p class="muted-text">No reviews yet.</p>
+                <% } %>
+
+                <div class="modern-review-grid">
+                    <% for(let review of listing.reviews) { %>
+                        <div class="modern-review-card">
+                            <p class="review-stars">
+                                <% for(let i = 1; i <= 5; i++) { %>
+                                    <%= i <= review.rating ? "⭐" : "☆" %>
+                                <% } %>
+                            </p>
+
+                            <p><%= review.comment %></p>
+
+                            <% if(review.author) { %>
+                                <small>By <%= review.author.username %></small>
+                            <% } %>
+
+                            <% if(currentUser && review.author && String(currentUser._id) !== String(listing.owner._id)) { %>
+                                <form action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE" method="POST">
+                                    <button class="btn delete-btn small-btn">Delete</button>
+                                </form>
+                            <% } %>
+                        </div>
+                    <% } %>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- RIGHT BOOKING CARD -->
+        <aside class="booking-card">
+            <div class="booking-price">
+                <strong>£<%= listing.price %></strong>
+                <span>/ night</span>
             </div>
 
-        <% } %>
-    </div>
+            <% if(listing.reviews.length > 0) { %>
+                <p class="booking-rating">⭐ <%= averageRating %> · <%= listing.reviews.length %> review<%= listing.reviews.length > 1 ? "s" : "" %></p>
+            <% } else { %>
+                <p class="booking-rating">New listing</p>
+            <% } %>
 
-    <!-- No reviews -->
-    <% if(listing.reviews.length === 0) { %>
-        <p>No reviews yet.</p>
+            <p class="booking-location">
+                <i class="fa-solid fa-location-dot"></i>
+                <%= listing.location %>, <%= listing.country %>
+            </p>
+
+            <div class="booking-actions">
+
+    <% const isOwner = currentUser && listing.owner && String(currentUser._id) === String(listing.owner._id); %>
+    <% const isGuest = currentUser && currentUser.role === "guest"; %>
+
+    <% if(!currentUser) { %>
+        <a href="/login" class="btn full-btn">Login to book</a>
     <% } %>
 
+    <% if(isGuest && !isOwner) { %>
+        <a href="/listings/<%= listing._id %>/book" class="btn full-btn">Book Now</a>
+        <a href="/listings/<%= listing._id %>/enquiry" class="btn secondary-btn full-btn">Book Viewing</a>
+
+        <% if(isSaved) { %>
+            <form action="/listings/<%= listing._id %>/remove-wishlist" method="POST">
+                <button class="wishlist-wide active" type="submit">
+                    <i class="fa-solid fa-heart"></i> Saved
+                </button>
+            </form>
+        <% } else { %>
+            <form action="/listings/<%= listing._id %>/wishlist" method="POST">
+                <button class="wishlist-wide" type="submit">
+                    <i class="fa-regular fa-heart"></i> Save to Wishlist
+                </button>
+            </form>
+        <% } %>
+    <% } %>
+
+    <% if(isOwner) { %>
+        <a href="/listings/<%= listing._id %>/edit" class="btn full-btn">Edit Listing</a>
+
+        <form action="/listings/<%= listing._id %>?_method=DELETE" method="POST">
+            <button class="btn delete-btn full-btn">Delete Listing</button>
+        </form>
+    <% } %>
+
+</div>
 </div>

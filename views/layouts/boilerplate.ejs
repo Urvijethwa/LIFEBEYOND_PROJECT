@@ -18,19 +18,22 @@
     <%- include("../includes/navbar") %>
 
     <main>
-        <!-- Success flash message -->
+        <!-- Toast notifications -->
+    <div class="toast-container">
         <% if(typeof success !== "undefined" && success.length) { %>
-            <div class="flash-message success-message">
-                <%= success[0] %>
+            <div class="toast toast-success">
+                <i class="fa-solid fa-circle-check"></i>
+                <span><%= success[0] %></span>
             </div>
         <% } %>
 
-        <!-- Error flash message -->
         <% if(typeof error !== "undefined" && error.length) { %>
-            <div class="flash-message error-message">
-                <%= error[0] %>
+            <div class="toast toast-error">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span><%= error[0] %></span>
             </div>
         <% } %>
+    </div>
 
         <!-- Page content -->
         <%- body %>
@@ -83,5 +86,15 @@
 
     <!-- Leaflet map JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+    setTimeout(() => {
+        document.querySelectorAll(".toast").forEach((toast) => {
+            toast.style.opacity = "0";
+            toast.style.transform = "translateX(30px)";
+            setTimeout(() => toast.remove(), 400);
+        });
+    }, 3500);
+</script>
 </body>
 </html>

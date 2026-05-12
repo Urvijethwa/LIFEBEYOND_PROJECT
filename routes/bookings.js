@@ -1,37 +1,27 @@
 const express = require("express");
 const router = express.Router();
 
-// Models
 const Listing = require("../models/listing");
 const Booking = require("../models/booking");
 
-// Middleware (auth check)
-const { isLoggedIn } = require("../middleware");
+const { isLoggedIn, isGuest } = require("../middleware");
 
-// Stripe for payments
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-////////////////////////////////////////////////////////////
-//FEATURE 1: BOOKING CREATION (Guest books a stay)
-////////////////////////////////////////////////////////////
-
 // Show booking form
-router.get("/listings/:id/book", isLoggedIn, async (req, res) => {
-    // Find listing and owner
+router.get("/listings/:id/book", isLoggedIn, isGuest, async (req, res) => {
     const listing = await Listing.findById(req.params.id).populate("owner");
 
-    // If listing doesn't exist
     if (!listing) {
         req.flash("error", "Listing not found.");
         return res.redirect("/listings");
     }
 
-    // Render booking form page
     res.render("bookings/new", { listing });
 });
 
-// Save booking
-router.post("/listings/:id/book", isLoggedIn, async (req, res) => {
+// Save booking with availability check
+router.post("/listings/:id/book", isLoggedIn, isGuest, async (req, res) => {
     const listing = await Listing.findById(req.params.id).populate("owner");
 
     if (!listing) {
@@ -39,41 +29,58 @@ router.post("/listings/:id/book", isLoggedIn, async (req, res) => {
         return res.redirect("/listings");
     }
 
-    // Extract form data
     const { checkIn, checkOut, guests, message } = req.body;
 
-    // Convert dates
     const startDate = new Date(checkIn);
     const endDate = new Date(checkOut);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    // Calculate number of nights
     const nights = (endDate - startDate) / (1000 * 60 * 60 * 24);
 
-  // Validation
+    if (startDate < today) {
+        req.flash("error", "Check-in date cannot be in the past.");
+        return res.redirect(`/listings/${req.params.id}/book`);
+    }
+
     if (nights <= 0) {
         req.flash("error", "Check-out date must be after check-in date.");
         return res.redirect(`/listings/${req.params.id}/book`);
     }
 
-    // Guest capacity validation
     const totalGuests = Number(guests);
+
+    if (!totalGuests || totalGuests < 1) {
+        req.flash("error", "Please select at least 1 guest.");
+        return res.redirect(`/listings/${req.params.id}/book`);
+    }
 
     if (totalGuests > listing.maxGuests) {
         req.flash("error", `This property only allows up to ${listing.maxGuests} guests.`);
         return res.redirect(`/listings/${req.params.id}/book`);
     }
 
-    // Calculate total price
+    const existingBooking = await Booking.findOne({
+        listing: listing._id,
+        status: { $in: ["pending", "approved", "paid"] },
+        checkIn: { $lt: endDate },
+        checkOut: { $gt: startDate }
+    });
+
+    if (existingBooking) {
+        req.flash("error", "This property is already booked for the selected dates. Please choose different dates.");
+        return res.redirect(`/listings/${req.params.id}/book`);
+    }
+
     const totalPrice = nights * listing.price;
 
-    // Create booking
     const booking = new Booking({
         listing: listing._id,
         user: req.session.userId,
         owner: listing.owner._id,
         checkIn: startDate,
         checkOut: endDate,
-        guests,
+        guests: totalGuests,
         totalPrice,
         message,
         status: "pending"
@@ -85,12 +92,8 @@ router.post("/listings/:id/book", isLoggedIn, async (req, res) => {
     res.redirect(`/bookings/${booking._id}/pay`);
 });
 
-////////////////////////////////////////////////////////////
-//FEATURE 2: ENQUIRY SYSTEM (Guest asks question)
-////////////////////////////////////////////////////////////
-
 // Show enquiry form
-router.get("/listings/:id/enquiry", isLoggedIn, async (req, res) => {
+router.get("/listings/:id/enquiry", isLoggedIn, isGuest, async (req, res) => {
     const listing = await Listing.findById(req.params.id).populate("owner");
 
     if (!listing) {
@@ -102,7 +105,7 @@ router.get("/listings/:id/enquiry", isLoggedIn, async (req, res) => {
 });
 
 // Save enquiry
-router.post("/listings/:id/enquiry", isLoggedIn, async (req, res) => {
+router.post("/listings/:id/enquiry", isLoggedIn, isGuest, async (req, res) => {
     const listing = await Listing.findById(req.params.id).populate("owner");
 
     if (!listing) {
@@ -110,16 +113,15 @@ router.post("/listings/:id/enquiry", isLoggedIn, async (req, res) => {
         return res.redirect("/listings");
     }
 
-    // Create enquiry (stored as booking with "enquiry" status)
-   const enquiry = new Booking({
-    listing: listing._id,
-    user: req.session.userId,
-    owner: listing.owner._id,
-    viewingDate: req.body.viewingDate,
-    viewingTime: req.body.viewingTime,
-    message: req.body.message,
-    status: "enquiry"
-});
+    const enquiry = new Booking({
+        listing: listing._id,
+        user: req.session.userId,
+        owner: listing.owner._id,
+        viewingDate: req.body.viewingDate,
+        viewingTime: req.body.viewingTime,
+        message: req.body.message,
+        status: "enquiry"
+    });
 
     await enquiry.save();
 
@@ -127,12 +129,8 @@ router.post("/listings/:id/enquiry", isLoggedIn, async (req, res) => {
     res.redirect(`/listings/${listing._id}`);
 });
 
-////////////////////////////////////////////////////////////
-//FEATURE 3: VIEW BOOKINGS (Guest + Owner dashboards)
-////////////////////////////////////////////////////////////
-
-// Guest: view their bookings
-router.get("/my-bookings", isLoggedIn, async (req, res) => {
+// Guest bookings
+router.get("/my-bookings", isLoggedIn, isGuest, async (req, res) => {
     const bookings = await Booking.find({ user: req.session.userId })
         .populate("listing")
         .populate("owner")
@@ -141,7 +139,7 @@ router.get("/my-bookings", isLoggedIn, async (req, res) => {
     res.render("bookings/myBookings", { bookings });
 });
 
-// Owner: view bookings for their listings
+// Owner bookings
 router.get("/owner/bookings", isLoggedIn, async (req, res) => {
     const bookings = await Booking.find({ owner: req.session.userId })
         .populate("listing")
@@ -151,12 +149,8 @@ router.get("/owner/bookings", isLoggedIn, async (req, res) => {
     res.render("bookings/ownerBookings", { bookings });
 });
 
-////////////////////////////////////////////////////////////
-//FEATURE 4: BOOKING MANAGEMENT (Cancel / Approve / Reject)
-////////////////////////////////////////////////////////////
-
-// Cancel booking (guest)
-router.post("/bookings/:id/cancel", isLoggedIn, async (req, res) => {
+// Cancel booking
+router.post("/bookings/:id/cancel", isLoggedIn, isGuest, async (req, res) => {
     const booking = await Booking.findById(req.params.id);
 
     if (!booking) {
@@ -164,7 +158,6 @@ router.post("/bookings/:id/cancel", isLoggedIn, async (req, res) => {
         return res.redirect("/my-bookings");
     }
 
-    // Check ownership
     if (!booking.user.equals(req.session.userId)) {
         req.flash("error", "You do not have permission.");
         return res.redirect("/my-bookings");
@@ -177,7 +170,7 @@ router.post("/bookings/:id/cancel", isLoggedIn, async (req, res) => {
     res.redirect("/my-bookings");
 });
 
-// Approve booking (host)
+// Approve booking
 router.post("/bookings/:id/approve", isLoggedIn, async (req, res) => {
     const booking = await Booking.findById(req.params.id);
 
@@ -193,7 +186,7 @@ router.post("/bookings/:id/approve", isLoggedIn, async (req, res) => {
     res.redirect("/owner/bookings");
 });
 
-// Reject booking (host)
+// Reject booking
 router.post("/bookings/:id/reject", isLoggedIn, async (req, res) => {
     const booking = await Booking.findById(req.params.id);
 
@@ -209,12 +202,8 @@ router.post("/bookings/:id/reject", isLoggedIn, async (req, res) => {
     res.redirect("/owner/bookings");
 });
 
-////////////////////////////////////////////////////////////
-//FEATURE 5: STRIPE PAYMENT SYSTEM
-////////////////////////////////////////////////////////////
-
-// Redirect to Stripe checkout
-router.get("/bookings/:id/pay", isLoggedIn, async (req, res) => {
+// Stripe payment
+router.get("/bookings/:id/pay", isLoggedIn, isGuest, async (req, res) => {
     const booking = await Booking.findById(req.params.id).populate("listing");
 
     if (!booking || !booking.user.equals(req.session.userId)) {
@@ -222,7 +211,6 @@ router.get("/bookings/:id/pay", isLoggedIn, async (req, res) => {
         return res.redirect("/my-bookings");
     }
 
-    // Create Stripe checkout session
     const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         mode: "payment",
@@ -233,7 +221,7 @@ router.get("/bookings/:id/pay", isLoggedIn, async (req, res) => {
                     product_data: {
                         name: booking.listing.title
                     },
-                    unit_amount: booking.totalPrice * 100 // convert £ → pence
+                    unit_amount: booking.totalPrice * 100
                 },
                 quantity: 1
             }
@@ -246,7 +234,7 @@ router.get("/bookings/:id/pay", isLoggedIn, async (req, res) => {
 });
 
 // Payment success
-router.get("/bookings/:id/success", isLoggedIn, async (req, res) => {
+router.get("/bookings/:id/success", isLoggedIn, isGuest, async (req, res) => {
     const booking = await Booking.findById(req.params.id);
 
     if (!booking || !booking.user.equals(req.session.userId)) {
@@ -254,28 +242,11 @@ router.get("/bookings/:id/success", isLoggedIn, async (req, res) => {
         return res.redirect("/my-bookings");
     }
 
-    // Mark booking as paid
     booking.status = "paid";
     await booking.save();
 
     req.flash("success", "Payment successful. Booking confirmed.");
     res.redirect("/my-bookings");
-});
-
-// APPROVE VIEWING
-router.post("/:id/approve", async (req, res) => {
-    await Booking.findByIdAndUpdate(req.params.id, {
-        status: "approved"
-    });
-    res.redirect("/owner/bookings");
-});
-
-// DECLINE VIEWING
-router.post("/:id/reject", async (req, res) => {
-    await Booking.findByIdAndUpdate(req.params.id, {
-        status: "rejected"
-    });
-    res.redirect("/owner/bookings");
 });
 
 module.exports = router;

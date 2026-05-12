@@ -1,47 +1,51 @@
 <% layout("layouts/boilerplate") %>
-<!-- Uses main layout -->
 
 <div class="page-header">
     <div>
         <h1>My Wishlist</h1>
-        <p class="location">Save your favourite stays and come back to them anytime.</p>
+        <p class="location">Your saved stays are stored here for quick access.</p>
     </div>
 </div>
 
-<!-- If no saved listings -->
 <% if(wishlist.length === 0) { %>
     <div class="empty-state">
         <p>You have no saved listings yet.</p>
+        <a href="/listings" class="btn" style="margin-top: 18px;">Explore Stays</a>
     </div>
-
 <% } else { %>
 
-    <!-- Show saved listings -->
-    <div class="card-container">
+    <div class="wishlist-grid">
         <% for(let listing of wishlist) { %>
+            <div class="wishlist-card">
 
-            <!-- Each listing card -->
-            <a href="/listings/<%= listing._id %>" class="listing-link">
-                <div class="card">
-
-                    <!-- Image with fallback -->
+                <a href="/listings/<%= listing._id %>" class="wishlist-image-link">
                     <img 
                         src="<%= listing.image %>" 
                         alt="<%= listing.title %>" 
-                        class="card-img"
                         onerror="this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000'"
                     >
+                </a>
 
-                    <div class="card-body">
-                        <h3><%= listing.title %></h3>
-                        <p><%= listing.description %></p>
-                        <p class="price">£<%= listing.price %></p>
-                        <p class="location"><%= listing.location %>, <%= listing.country %></p>
+                <div class="wishlist-content">
+                    <h3><%= listing.title %></h3>
+
+                    <p class="wishlist-location">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <%= listing.location %>, <%= listing.country %>
+                    </p>
+
+                    <p class="wishlist-price">£<%= listing.price %> / night</p>
+
+                    <div class="wishlist-actions">
+                        <a href="/listings/<%= listing._id %>" class="btn">View Details</a>
+
+                        <form action="/listings/<%= listing._id %>/remove-wishlist" method="POST">
+                            <button type="submit" class="btn delete-btn">Remove</button>
+                        </form>
                     </div>
-
                 </div>
-            </a>
 
+            </div>
         <% } %>
     </div>
 

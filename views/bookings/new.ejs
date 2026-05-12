@@ -6,8 +6,7 @@
 </h1>
 <!-- Shows the title of the listing being booked -->
 
-<form action="/listings/<%= listing._id %>/book" method="POST" class="listing-form">
-    <!-- 
+<form action="/listings/<%= listing._id %>/book" method="POST" class="listing-form" id="bookingForm">    <!-- 
         Form sends booking data to backend
         POST /listings/:id/book
         listing._id is dynamic (depends on which listing user clicked)
@@ -21,18 +20,20 @@
     <div class="form-group">
         <label for="checkIn">Check-in Date</label>
         <input type="date" name="checkIn" id="checkIn" required>
+        <div class="validation-message" id="checkInError"></div>
         <!-- User must select a check-in date (required prevents empty form) -->
     </div>
 
     <div class="form-group">
         <label for="checkOut">Check-out Date</label>
         <input type="date" name="checkOut" id="checkOut" required>
+        <div class="validation-message" id="checkOutError"></div>
         <!-- Check-out must be after check-in (validated in backend) -->
     </div>
 
     <div class="form-group">
         <label for="guests">Number of Guests</label>
-       <select name="guests" required>
+       <select name="guests" id="guests" required>
     <option value="">Select number of guests</option>
 
     <% for(let i = 1; i <= (listing.maxGuests || 1); i++) { %>
@@ -55,3 +56,68 @@
     <!-- Cancel button (takes user back to listing page) -->
     <a href="/listings/<%= listing._id %>" class="btn secondary-btn">Cancel</a>
 </form>
+
+<script>
+    const checkIn = document.getElementById("checkIn");
+    const checkOut = document.getElementById("checkOut");
+
+    const checkInError = document.getElementById("checkInError");
+    const checkOutError = document.getElementById("checkOutError");
+
+    // Prevent past dates
+    const today = new Date().toISOString().split("T")[0];
+    checkIn.min = today;
+    checkOut.min = today;
+
+    checkIn.addEventListener("change", () => {
+
+        checkIn.classList.remove("input-error");
+        checkInError.textContent = "";
+
+        if (checkIn.value) {
+            checkOut.min = checkIn.value;
+        }
+
+        validateDates();
+    });
+
+    checkOut.addEventListener("change", validateDates);
+
+   function validateDates() {
+    checkIn.classList.remove("input-error");
+    checkOut.classList.remove("input-error");
+    checkInError.textContent = "";
+    checkOutError.textContent = "";
+
+    document.getElementById("bookingForm").addEventListener("submit", function (e) {
+    validateDates();
+
+    if (
+        checkIn.classList.contains("input-error") ||
+        checkOut.classList.contains("input-error")
+    ) {
+        e.preventDefault();
+    }
+    });
+
+    if (!checkIn.value) return;
+
+    const todayDate = new Date(today);
+    const inDate = new Date(checkIn.value);
+
+    if (inDate < todayDate) {
+        checkIn.classList.add("input-error");
+        checkInError.textContent = "Check-in date cannot be in the past.";
+        return;
+    }
+
+    if (!checkOut.value) return;
+
+    const outDate = new Date(checkOut.value);
+
+    if (outDate <= inDate) {
+        checkOut.classList.add("input-error");
+        checkOutError.textContent = "Check-out date must be after check-in date.";
+    }
+}
+</script>

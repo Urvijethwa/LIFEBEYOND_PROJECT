@@ -8,14 +8,13 @@ const router = express.Router();
 const User = require("../models/user");
 
 // Middleware to ensure user is logged in
-const { isLoggedIn } = require("../middleware");
+const { isLoggedIn, isGuest } = require("../middleware");
 
 
 // ==========================================
 // FEATURE 1: ADD LISTING TO WISHLIST
 // ==========================================
-router.post("/listings/:id/wishlist", isLoggedIn, async (req, res) => {
-
+router.post("/listings/:id/wishlist", isLoggedIn, isGuest, async (req, res) => {
     // Get listing ID from URL
     const { id } = req.params;
 
@@ -48,8 +47,7 @@ router.post("/listings/:id/wishlist", isLoggedIn, async (req, res) => {
 // ==========================================
 // FEATURE 2: REMOVE LISTING FROM WISHLIST
 // ==========================================
-router.post("/listings/:id/remove-wishlist", isLoggedIn, async (req, res) => {
-
+router.post("/listings/:id/remove-wishlist", isLoggedIn, isGuest, async (req, res) => {
     const { id } = req.params;
 
     // ----------------------------------
@@ -70,8 +68,7 @@ router.post("/listings/:id/remove-wishlist", isLoggedIn, async (req, res) => {
 // ==========================================
 // FEATURE 3: VIEW WISHLIST PAGE
 // ==========================================
-router.get("/wishlist", isLoggedIn, async (req, res) => {
-
+router.get("/wishlist", isLoggedIn, isGuest, async (req, res) => {
     // Get user and populate wishlist
     // populate() replaces listing IDs with full listing data
     const user = await User.findById(req.session.userId)

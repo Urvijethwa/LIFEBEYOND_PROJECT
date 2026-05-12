@@ -12,9 +12,15 @@
 <!-- Page heading -->
 <div class="page-header">
     <div>
-        <h1>All Listings</h1>
+        <h1>
+    <%= currentUser && currentUser.role === "host" ? "All Listings" : "Find your stay" %>
+        </h1>
+
         <p class="location">
-            Explore stylish stays, unique locations, and travel-ready accommodation.
+            <%= currentUser && currentUser.role === "host" 
+                ? "Explore stylish stays, unique locations, and travel-ready accommodation." 
+                : "Search accommodation by location, price, and travel preference." 
+            %>
         </p>
     </div>
 
@@ -44,7 +50,7 @@
             <input 
             type="text" 
             name="search" 
-            placeholder="Search by keyword (name, description)"
+            placeholder="Search title or description"
             value="<%= search || '' %>"
             >
 
@@ -88,6 +94,10 @@
             <a href="/listings" class="btn secondary-btn">Reset</a>
         </div>
     </form>
+    <div class="search-tip">
+    <i class="fa-solid fa-circle-info"></i>
+    Search using any single field or combine multiple filters.
+</div>
 <% } %>
 
 <!-- Show message if filters are used -->
@@ -104,60 +114,53 @@
 
             <div class="card">
 
-                <!-- Listing image -->
-                <img 
-                    src="<%= listing.image %>" 
-                    alt="<%= listing.title %>" 
-                    class="card-img"
-                    onerror="this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000'"
-                >
-                <!-- Fallback image if broken -->
+        <div class="card-image-wrap">
+            <img 
+                src="<%= listing.image %>" 
+                alt="<%= listing.title %>" 
+                class="card-img"
+                onerror="this.src='https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=1000'"
+            >
 
-                <div class="card-body">
+            <div class="card-badge">Available</div>
+        </div>
 
-                    <!-- Title -->
-                    <h3><%= listing.title %></h3>
+        <div class="card-body">
 
-                    <!-- Calculate average rating -->
-                    <% 
-                        let averageRating = 0;
-                        if (listing.reviews.length > 0) {
-                            const total = listing.reviews.reduce((sum, review) => sum + review.rating, 0);
-                            averageRating = (total / listing.reviews.length).toFixed(1);
-                        }
-                    %>
+            <div class="card-title-row">
+                <h3><%= listing.title %></h3>
 
-                    <!-- Show rating -->
-                    <% if(listing.reviews.length > 0) { %>
-                        <p class="card-rating">
-                            ⭐ <strong><%= averageRating %></strong> / 5
-                        </p>
-                    <% } else { %>
-                        <p class="card-rating">No ratings yet</p>
-                    <% } %>
+                <% 
+                    let averageRating = 0;
+                    if (listing.reviews.length > 0) {
+                        const total = listing.reviews.reduce((sum, review) => sum + review.rating, 0);
+                        averageRating = (total / listing.reviews.length).toFixed(1);
+                    }
+                %>
 
-                    <!-- Description -->
-                    <p class="card-description">
-                    <%= listing.description.length > 95 
-                        ? listing.description.substring(0, 95) + "..." 
-                        : listing.description 
-                    %>
-                    </p>
-
-                    <!-- Price -->
-                    <p class="price">£<%= listing.price %></p>
-
-                    <!-- Location -->
-                    <p class="location">
-                        <%= listing.location %>, <%= listing.country %>
-                    </p>
-
-                    <div class="card-buttons">
-                    <span class="view-btn">View Details</span>
-                    </div>
-
-                </div>
+                <% if(listing.reviews.length > 0) { %>
+                    <span class="mini-rating">⭐ <%= averageRating %></span>
+                <% } else { %>
+                    <span class="mini-rating">New</span>
+                <% } %>
             </div>
+
+            <p class="card-location">
+                <i class="fa-solid fa-location-dot"></i>
+                <%= listing.location %>, <%= listing.country %>
+            </p>
+
+            <p class="guest-info">
+                Up to <%= listing.maxGuests || 1 %> guest<%= (listing.maxGuests || 1) > 1 ? "s" : "" %>
+            </p>
+
+            <div class="card-bottom">
+                <p class="price"><strong>£<%= listing.price %></strong> / night</p>
+                <span class="view-btn">View Details</span>
+            </div>
+
+        </div>
+    </div>
         </a>
     <% } %>
 

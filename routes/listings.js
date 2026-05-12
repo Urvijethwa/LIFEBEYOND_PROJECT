@@ -67,7 +67,14 @@ if (location && location.trim() !== "") {
 
 // price filter
 if (maxPrice && maxPrice !== "") {
-    filter.price = { $lte: Number(maxPrice) };
+    const priceNumber = Number(maxPrice);
+
+    if (priceNumber < 0) {
+        req.flash("error", "Maximum price cannot be negative.");
+        return res.redirect("/listings");
+    }
+
+    filter.price = { $lte: priceNumber };
 }
 
     let query = Listing.find(filter).populate("reviews");
@@ -92,7 +99,21 @@ router.get("/new", isLoggedIn, (req, res) => {
 
 router.post("/", isLoggedIn, validateListing, async (req, res) => {
 
-    const newListing = new Listing(req.body);
+    const newListing = new Listing({
+    ...req.body,
+    price: Number(req.body.price),
+    maxGuests: Number(req.body.maxGuests)
+});
+
+    if (newListing.price < 0) {
+    req.flash("error", "Price cannot be negative.");
+    return res.redirect("/listings/new");
+    }
+
+    if (newListing.maxGuests && newListing.maxGuests < 1) {
+        req.flash("error", "Guest capacity must be at least 1.");
+        return res.redirect("/listings/new");
+    }
 
     try {
         // Convert location → latitude & longitude
@@ -405,14 +426,39 @@ router.get("/:id", async (req, res) => {
 // ==========================================
 // FEATURE 7: EDIT & DELETE LISTINGS
 // ==========================================
+
 router.get("/:id/edit", isLoggedIn, isOwner, async (req, res) => {
     const listing = await Listing.findById(req.params.id);
+
+    if (!listing) {
+        req.flash("error", "Listing not found.");
+        return res.redirect("/listings");
+    }
+
     res.render("listings/edit", { listing });
 });
 
 router.put("/:id", isLoggedIn, isOwner, validateListing, async (req, res) => {
-    await Listing.findByIdAndUpdate(req.params.id, req.body);
-    req.flash("success", "Listing updated.");
+    const updatedListing = req.body;
+
+    updatedListing.price = Number(updatedListing.price);
+    updatedListing.maxGuests = Number(updatedListing.maxGuests);
+
+    if (updatedListing.price <= 0 || isNaN(updatedListing.price)) {
+        req.flash("error", "Price must be greater than 0.");
+        return res.redirect(`/listings/${req.params.id}/edit`);
+    }
+
+    if (updatedListing.maxGuests < 1 || isNaN(updatedListing.maxGuests)) {
+        req.flash("error", "Maximum guests must be at least 1.");
+        return res.redirect(`/listings/${req.params.id}/edit`);
+    }
+
+    await Listing.findByIdAndUpdate(req.params.id, updatedListing, {
+        runValidators: true
+    });
+
+    req.flash("success", "Listing updated successfully.");
     res.redirect(`/listings/${req.params.id}`);
 });
 

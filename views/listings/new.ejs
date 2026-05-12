@@ -1,97 +1,160 @@
 <% layout("layouts/boilerplate") %>
-<!-- Uses main layout (navbar, footer, consistent UI styling) -->
 
-<h1 class="form-heading">Add New Listing</h1>
-<!-- Page title for creating a new property -->
-
-<form action="/listings" method="POST" class="listing-form">
-    <!-- Form sends data to backend route POST /listings -->
-
-    <!-- Title input -->
-    <div class="form-group">
-        <label for="title">Title</label>
-        <input 
-            name="title" 
-            id="title" 
-            placeholder="Enter title" 
-            required
-        >
-        <!-- Required field to enter listing name -->
+<div class="modern-form-page">
+    <div class="modern-form-header">
+        <h1>Create New Listing</h1>
+        <p>Add your accommodation details and publish your property for travellers.</p>
     </div>
 
-    <!-- Description input -->
-    <div class="form-group">
-        <label for="description">Description</label>
-        <textarea 
-            name="description" 
-            id="description" 
-            placeholder="Enter description" 
-            required
-        ></textarea>
-        <!-- Required field for listing details -->
-    </div>
+    <div class="modern-form-card">
+        <form action="/listings" method="POST" class="modern-listing-form">
 
-    <!-- Image URL input -->
-    <div class="form-group">
-        <label for="image">Image URL</label>
-        <input 
-            name="image" 
-            id="image" 
-            placeholder="Enter image URL"
-        >
-        <!-- Optional: if empty, default image will be used -->
-    </div>
+            <div class="modern-form-grid">
+                <div class="form-group">
+                    <label>Property Title</label>
+                    <input type="text" name="title" placeholder="e.g. Luxury Beach Villa" required>
+                </div>
 
-    <!-- Price input -->
-    <div class="form-group">
-        <label for="price">Price</label>
-        <input 
-            name="price" 
-            id="price" 
-            type="number" 
-            placeholder="Enter price" 
-            required
-        >
-        <!-- Required numeric input for price per night -->
-    </div>
+                <div class="form-group">
+                    <label>Price Per Night (£)</label>
+                    <input type="number" name="price" placeholder="e.g. 250" min="1" required>
+                </div>
+            </div>
 
-    <!-- Location input -->
-    <div class="form-group">
-        <label for="location">Location</label>
-        <input 
-            name="location" 
-            id="location" 
-            placeholder="Enter location" 
-            required
-        >
-        <!-- Required: used for search + geocoding -->
-    </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" placeholder="Describe your accommodation..." required></textarea>
+            </div>
 
-    <!-- Country input -->
-    <div class="form-group">
-        <label for="country">Country</label>
-        <input 
-            name="country" 
-            id="country" 
-            placeholder="Enter country" 
-            required
-        >
-        <!-- Required: helps filtering and AI recommendations -->
-    </div>
+            <div class="form-group">
+                <label>Image URL</label>
+                <input type="text" name="image" placeholder="Paste image URL">
+            </div>
 
-    <div class="form-group">
-    <label for="maxGuests">Maximum Guests Allowed</label>
-    <input 
-        type="number" 
-        name="maxGuests" 
-        id="maxGuests" 
-        min="1" 
-        placeholder="e.g. 4" 
-        required
-    >
-    </div>
+            <div class="modern-form-grid">
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" name="location" placeholder="e.g. London" required>
+                </div>
 
-    <!-- Submit button -->
-    <button type="submit" class="btn">Add Listing</button>
-    <!-- Sends all form data to backend -->
-</form>
+                <div class="form-group">
+                    <label>Country</label>
+                    <input type="text" name="country" placeholder="e.g. United Kingdom" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Maximum Guests Allowed</label>
+                <input type="number" name="maxGuests" placeholder="e.g. 4" min="1" max="20" required>
+            </div>
+
+            <button class="btn modern-submit-btn">Publish Property</button>
+        </form>
+    </div>
+</div>
+
+<script>
+const form = document.querySelector(".modern-listing-form");
+
+function showError(input, message) {
+    input.classList.add("input-error");
+
+    let error = input.parentElement.querySelector(".validation-message");
+    if (!error) {
+        error = document.createElement("p");
+        error.className = "validation-message";
+        input.parentElement.appendChild(error);
+    }
+
+    error.textContent = message;
+}
+
+function clearError(input) {
+    input.classList.remove("input-error");
+    const error = input.parentElement.querySelector(".validation-message");
+    if (error) error.remove();
+}
+
+function validateInput(input) {
+    const name = input.name;
+    const value = input.value.trim();
+    const textOnlyRegex = /^[A-Za-z\s]+$/;
+
+    if (name === "title") {
+        if (value.length < 5) {
+            showError(input, "Title must be at least 5 characters.");
+            return false;
+        }
+        if (!textOnlyRegex.test(value)) {
+            showError(input, "Title must only contain letters and spaces.");
+            return false;
+        }
+    }
+
+    if (name === "price") {
+        if (value === "" || Number(value) <= 0 || isNaN(Number(value))) {
+            showError(input, "Price must be greater than 0.");
+            return false;
+        }
+    }
+
+    if (name === "description") {
+        if (value.length < 20) {
+            showError(input, "Description must be at least 20 characters.");
+            return false;
+        }
+    }
+
+    if (name === "image") {
+        clearError(input);
+        return true;
+    }
+
+    if (name === "location") {
+        if (value.length < 2) {
+            showError(input, "Location must be at least 2 characters.");
+            return false;
+        }
+        if (!textOnlyRegex.test(value)) {
+            showError(input, "Location must only contain letters and spaces.");
+            return false;
+        }
+    }
+
+    if (name === "country") {
+        if (value.length < 2) {
+            showError(input, "Country must be at least 2 characters.");
+            return false;
+        }
+        if (!textOnlyRegex.test(value)) {
+            showError(input, "Country must only contain letters and spaces.");
+            return false;
+        }
+    }
+
+    if (name === "maxGuests") {
+        if (value === "" || Number(value) < 1 || Number(value) > 20 || isNaN(Number(value))) {
+            showError(input, "Maximum guests must be between 1 and 20.");
+            return false;
+        }
+    }
+
+    clearError(input);
+    return true;
+}
+
+form.querySelectorAll("input, textarea").forEach(input => {
+    input.addEventListener("input", () => validateInput(input));
+    input.addEventListener("blur", () => validateInput(input));
+});
+
+form.addEventListener("submit", function(e) {
+    let isValid = true;
+
+    form.querySelectorAll("input, textarea").forEach(input => {
+        if (!validateInput(input)) isValid = false;
+    });
+
+    if (!isValid) e.preventDefault();
+});
+</script>

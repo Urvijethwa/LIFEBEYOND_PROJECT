@@ -1,5 +1,6 @@
 require("dotenv").config();
 
+const assistantRoutes = require("./routes/assistant");
 const express = require("express");
 const path = require("path");
 const ejsMate = require("ejs-mate");
@@ -49,6 +50,7 @@ const sessionOptions = {
 
 // Middleware
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(session(sessionOptions));
@@ -83,6 +85,7 @@ app.use(async (req, res, next) => {
 // Routes
 app.use("/", indexRoutes);
 app.use("/", userRoutes);
+app.use("/", assistantRoutes);
 app.use("/", wishlistRoutes);
 app.use("/", bookingRoutes);
 app.use("/", messageRoutes);

@@ -5,44 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LifeBeyond</title>
 
-    <!-- Icons + CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="/css/style.css">
-
-    <!-- Leaflet map CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 
 <body>
-    <!-- Navbar -->
     <%- include("../includes/navbar") %>
 
     <main>
-        <!-- Toast notifications -->
-    <div class="toast-container">
-        <% if(typeof success !== "undefined" && success.length) { %>
-            <div class="toast toast-success">
-                <i class="fa-solid fa-circle-check"></i>
-                <span><%= success[0] %></span>
-            </div>
-        <% } %>
+        <div class="toast-container">
+            <% if(typeof success !== "undefined" && success.length) { %>
+                <div class="toast toast-success">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span><%= success[0] %></span>
+                </div>
+            <% } %>
 
-        <% if(typeof error !== "undefined" && error.length) { %>
-            <div class="toast toast-error">
-                <i class="fa-solid fa-circle-exclamation"></i>
-                <span><%= error[0] %></span>
-            </div>
-        <% } %>
-    </div>
+            <% if(typeof error !== "undefined" && error.length) { %>
+                <div class="toast toast-error">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span><%= error[0] %></span>
+                </div>
+            <% } %>
+        </div>
 
-        <!-- Page content -->
         <%- body %>
     </main>
 
-    <!-- Footer -->
     <footer class="site-footer">
         <div class="footer-container">
-
             <div class="footer-brand">
                 <h3>LifeBeyond <span><i class="fa-solid fa-leaf"></i></span></h3>
                 <p>
@@ -65,7 +57,6 @@
                 <p>LifeBeyond Accommodation Platform</p>
                 <p>Designed for smarter travel discovery</p>
             </div>
-
         </div>
 
         <div class="footer-bottom">
@@ -73,28 +64,149 @@
         </div>
     </footer>
 
-    <!-- Floating AI assistant button -->
     <% if(typeof currentUser !== "undefined" && currentUser) { %>
-        <a href="/listings/assistant" class="ai-chat-box">
-            <div class="ai-icon">🤖</div>
-            <div>
-                <strong>AI Assistant</strong>
-                <p>Need help finding a stay?</p>
+        <button class="ai-floating-btn" onclick="toggleAiChat()">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            AI Assistant
+        </button>
+
+        <div class="ai-popup" id="aiPopup">
+            <div class="ai-popup-header">
+                <div>
+                    <strong>LifeBeyond AI</strong>
+                    <p>Ask me to find stays, weather, and nearby places.</p>
+                </div>
+                <button onclick="toggleAiChat()">×</button>
             </div>
-        </a>
+
+            <div class="ai-popup-body" id="aiMessages">
+                <div class="ai-message bot">
+                    Hi! Tell me what kind of stay you want. Example: “Find me a beach stay in Spain for 2 guests under £800.”
+                </div>
+            </div>
+
+            <form class="ai-popup-form" id="aiChatForm">
+                <input 
+                    type="text" 
+                    id="aiUserInput" 
+                    placeholder="Ask for a stay..."
+                    required
+                >
+                <button type="submit">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
     <% } %>
 
-    <!-- Leaflet map JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-    setTimeout(() => {
-        document.querySelectorAll(".toast").forEach((toast) => {
-            toast.style.opacity = "0";
-            toast.style.transform = "translateX(30px)";
-            setTimeout(() => toast.remove(), 400);
-        });
-    }, 3500);
-</script>
+        setTimeout(() => {
+            document.querySelectorAll(".toast").forEach((toast) => {
+                toast.style.opacity = "0";
+                toast.style.transform = "translateX(30px)";
+                setTimeout(() => toast.remove(), 400);
+            });
+        }, 3500);
+
+        function toggleAiChat() {
+            const popup = document.getElementById("aiPopup");
+            if (popup) popup.classList.toggle("show-ai-popup");
+        }
+
+        const aiForm = document.getElementById("aiChatForm");
+
+        if (aiForm) {
+            aiForm.addEventListener("submit", async function(e) {
+                e.preventDefault();
+
+                const input = document.getElementById("aiUserInput");
+                const messages = document.getElementById("aiMessages");
+                const userMessage = input.value.trim();
+
+                if (!userMessage) return;
+
+                messages.innerHTML += `<div class="ai-message user">${userMessage}</div>`;
+                input.value = "";
+
+                messages.innerHTML += `<div class="ai-message bot loading">Thinking...</div>`;
+                messages.scrollTop = messages.scrollHeight;
+
+                try {
+                    const response = await fetch("/assistant/chat", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ message: userMessage })
+                    });
+
+                    const data = await response.json();
+
+                    const loading = messages.querySelector(".loading");
+                    if (loading) loading.remove();
+
+                    if (!data.success) {
+                        messages.innerHTML += `<div class="ai-message bot">${data.reply}</div>`;
+                        return;
+                    }
+
+                    let html = `<div class="ai-message bot">${data.reply}</div>`;
+
+                    if (data.weather) {
+                        html += `
+                            <div class="ai-result-card">
+                                <strong>Weather</strong>
+                                <p>Temperature: ${data.weather.temperature}°C</p>
+                                <p>Wind: ${data.weather.windspeed} km/h</p>
+                            </div>
+                        `;
+                    }
+
+                    if (data.listings && data.listings.length > 0) {
+                        html += `<div class="ai-result-card"><strong>Recommended LifeBeyond listings</strong>`;
+
+                        data.listings.forEach(listing => {
+                            html += `
+                                <div class="ai-mini-listing">
+                                    <span>${listing.title}</span>
+                                    <small>${listing.location}, ${listing.country} · £${listing.price}</small>
+                                    <a href="/listings/${listing._id}">View</a>
+                                </div>
+                            `;
+                        });
+
+                        html += `</div>`;
+                    }
+
+                    if (data.externalPlaces && data.externalPlaces.length > 0) {
+                        html += `<div class="ai-result-card"><strong>External nearby places</strong>`;
+
+                        data.externalPlaces.slice(0, 4).forEach(place => {
+                            html += `
+                                <div class="ai-mini-listing">
+                                    <span>${place.name}</span>
+                                    <small>${place.type}</small>
+                                    <a href="${place.link}" target="_blank">Open Map</a>
+                                </div>
+                            `;
+                        });
+
+                        html += `</div>`;
+                    }
+
+                    messages.innerHTML += html;
+                    messages.scrollTop = messages.scrollHeight;
+
+                } catch (err) {
+                    const loading = messages.querySelector(".loading");
+                    if (loading) loading.remove();
+
+                    messages.innerHTML += `<div class="ai-message bot">Sorry, I could not connect to the AI assistant.</div>`;
+                }
+            });
+        }
+    </script>
 </body>
 </html>

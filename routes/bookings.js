@@ -106,6 +106,7 @@ router.get("/listings/:id/enquiry", isLoggedIn, isGuest, async (req, res) => {
 
 // Save enquiry
 router.post("/listings/:id/enquiry", isLoggedIn, isGuest, async (req, res) => {
+
     const listing = await Listing.findById(req.params.id).populate("owner");
 
     if (!listing) {
@@ -113,19 +114,39 @@ router.post("/listings/:id/enquiry", isLoggedIn, isGuest, async (req, res) => {
         return res.redirect("/listings");
     }
 
+    const { viewingDate, viewingTime, message } = req.body;
+
+    // Current date
+    const selectedDate = new Date(viewingDate);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Prevent past dates
+    if (selectedDate < today) {
+        req.flash("error", "Viewing date cannot be in the past.");
+        return res.redirect(`/listings/${req.params.id}/enquiry`);
+    }
+
+    // Message validation
+    if (!message || message.trim().length < 5) {
+        req.flash("error", "Please enter a proper message for the host.");
+        return res.redirect(`/listings/${req.params.id}/enquiry`);
+    }
+
     const enquiry = new Booking({
         listing: listing._id,
         user: req.session.userId,
         owner: listing.owner._id,
-        viewingDate: req.body.viewingDate,
-        viewingTime: req.body.viewingTime,
-        message: req.body.message,
+        viewingDate,
+        viewingTime,
+        message,
         status: "enquiry"
     });
 
     await enquiry.save();
 
-    req.flash("success", "Viewing request sent to owner.");
+    req.flash("success", "Viewing request sent successfully.");
     res.redirect(`/listings/${listing._id}`);
 });
 

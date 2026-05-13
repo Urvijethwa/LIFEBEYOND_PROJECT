@@ -7,19 +7,32 @@
 
         <div class="form-group">
             <label for="viewingDate">Preferred Viewing Date</label>
-            <input type="date" name="viewingDate" id="viewingDate" required>
+            <input 
+                type="date"
+                name="viewingDate"
+                id="viewingDate"
+                min="<%= new Date().toISOString().split('T')[0] %>"
+                required
+            >
         </div>
 
         <div class="form-group">
             <label for="viewingTime">Preferred Viewing Time</label>
-            <input type="time" name="viewingTime" id="viewingTime" required>
+            <input 
+                type="time"
+                name="viewingTime"
+                id="viewingTime"
+                required
+            >
         </div>
 
         <div class="form-group">
             <label for="message">Message to Host</label>
             <textarea 
-                name="message" 
-                id="message" 
+                name="message"
+                id="message"
+                minlength="5"
+                maxlength="500"
                 placeholder="Example: Hi, I would like to view this property on my selected date and time."
                 required
             ></textarea>
@@ -28,3 +41,87 @@
         <button class="btn">Send Viewing Request</button>
     </form>
 </div>
+
+<script>
+const viewingForm = document.querySelector(".listing-form form");
+
+function showEnquiryError(input, message) {
+    input.classList.add("input-error");
+
+    let error = input.parentElement.querySelector(".validation-message");
+
+    if (!error) {
+        error = document.createElement("p");
+        error.className = "validation-message";
+        input.parentElement.appendChild(error);
+    }
+
+    error.textContent = message;
+}
+
+function clearEnquiryError(input) {
+    input.classList.remove("input-error");
+
+    const error = input.parentElement.querySelector(".validation-message");
+    if (error) error.remove();
+}
+
+function validateEnquiryInput(input) {
+    const value = input.value.trim();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (input.name === "viewingDate") {
+        const selectedDate = new Date(value);
+
+        if (!value) {
+            showEnquiryError(input, "Please select a viewing date.");
+            return false;
+        }
+
+        if (selectedDate < today) {
+            showEnquiryError(input, "Viewing date cannot be in the past.");
+            return false;
+        }
+    }
+
+    if (input.name === "viewingTime") {
+        if (!value) {
+            showEnquiryError(input, "Please select a viewing time.");
+            return false;
+        }
+    }
+
+    if (input.name === "message") {
+        if (value.length < 5) {
+            showEnquiryError(input, "Message must be at least 5 characters.");
+            return false;
+        }
+
+        if (value.length > 500) {
+            showEnquiryError(input, "Message cannot be more than 500 characters.");
+            return false;
+        }
+    }
+
+    clearEnquiryError(input);
+    return true;
+}
+
+viewingForm.querySelectorAll("input, textarea").forEach(input => {
+    input.addEventListener("input", () => validateEnquiryInput(input));
+    input.addEventListener("blur", () => validateEnquiryInput(input));
+});
+
+viewingForm.addEventListener("submit", function(e) {
+    let isValid = true;
+
+    viewingForm.querySelectorAll("input, textarea").forEach(input => {
+        if (!validateEnquiryInput(input)) isValid = false;
+    });
+
+    if (!isValid) {
+        e.preventDefault();
+    }
+});
+</script>

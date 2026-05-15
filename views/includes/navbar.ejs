@@ -23,8 +23,10 @@
                 <a href="/wishlist">Wishlist</a>
                 <a href="/my-bookings">My Bookings</a>
             <% } %>
+            <% if (currentUser && currentUser.role === "admin") { %>
+            <a href="/admin/dashboard">Admin</a>
+            <% } %>
 
-            <a href="/messages">Messages</a>
             <a href="/account">Account</a>
             <a href="/logout">Logout</a>
 

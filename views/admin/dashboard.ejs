@@ -1,0 +1,52 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>Admin Dashboard</h1>
+        <p>Admin can view registered users and bookings.</p>
+    </div>
+
+    <div class="admin-section">
+        <h2>All Users</h2>
+
+        <table class="admin-table">
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+            </tr>
+
+            <% users.forEach(user => { %>
+                <tr>
+                    <td><%= user.username %></td>
+                    <td><%= user.email %></td>
+                    <td><%= user.role %></td>
+                </tr>
+            <% }) %>
+        </table>
+    </div>
+
+    <div class="admin-section">
+        <h2>All Bookings</h2>
+
+        <table class="admin-table">
+            <tr>
+                <th>User</th>
+                <th>Listing</th>
+                <th>Check In</th>
+                <th>Check Out</th>
+                <th>Status</th>
+            </tr>
+
+            <% bookings.forEach(booking => { %>
+                <tr>
+                    <td><%= booking.user?.username || "N/A" %></td>
+                    <td><%= booking.listing?.title || "N/A" %></td>
+                    <td><%= booking.checkIn ? booking.checkIn.toDateString() : "N/A" %></td>
+                    <td><%= booking.checkOut ? booking.checkOut.toDateString() : "N/A" %></td>
+                    <td><%= booking.status || "N/A" %></td>
+                </tr>
+            <% }) %>
+        </table>
+    </div>
+</div>

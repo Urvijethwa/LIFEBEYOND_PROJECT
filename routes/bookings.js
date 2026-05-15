@@ -8,12 +8,32 @@ const { isLoggedIn, isGuest } = require("../middleware");
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-// Show booking form
-router.get("/listings/:id/book", isLoggedIn, isGuest, async (req, res) => {
-    const listing = await Listing.findById(req.params.id).populate("owner");
+/*
+    Helper function:
+    Gets listing without populate.
+    This avoids owner becoming null if populate cannot find the user.
+*/
+async function findListing(req, res) {
+    const listing = await Listing.findById(req.params.id);
 
     if (!listing) {
         req.flash("error", "Listing not found.");
+        return null;
+    }
+
+    if (!listing.owner) {
+        req.flash("error", "This listing has no host owner, so this action cannot be completed.");
+        return null;
+    }
+
+    return listing;
+}
+
+// Show booking form
+router.get("/listings/:id/book", isLoggedIn, isGuest, async (req, res) => {
+    const listing = await findListing(req, res);
+
+    if (!listing) {
         return res.redirect("/listings");
     }
 
@@ -22,10 +42,9 @@ router.get("/listings/:id/book", isLoggedIn, isGuest, async (req, res) => {
 
 // Save booking with availability check
 router.post("/listings/:id/book", isLoggedIn, isGuest, async (req, res) => {
-    const listing = await Listing.findById(req.params.id).populate("owner");
+    const listing = await findListing(req, res);
 
     if (!listing) {
-        req.flash("error", "Listing not found.");
         return res.redirect("/listings");
     }
 
@@ -40,24 +59,24 @@ router.post("/listings/:id/book", isLoggedIn, isGuest, async (req, res) => {
 
     if (startDate < today) {
         req.flash("error", "Check-in date cannot be in the past.");
-        return res.redirect(`/listings/${req.params.id}/book`);
+        return res.redirect(`/listings/${listing._id}/book`);
     }
 
     if (nights <= 0) {
         req.flash("error", "Check-out date must be after check-in date.");
-        return res.redirect(`/listings/${req.params.id}/book`);
+        return res.redirect(`/listings/${listing._id}/book`);
     }
 
     const totalGuests = Number(guests);
 
     if (!totalGuests || totalGuests < 1) {
         req.flash("error", "Please select at least 1 guest.");
-        return res.redirect(`/listings/${req.params.id}/book`);
+        return res.redirect(`/listings/${listing._id}/book`);
     }
 
     if (totalGuests > listing.maxGuests) {
         req.flash("error", `This property only allows up to ${listing.maxGuests} guests.`);
-        return res.redirect(`/listings/${req.params.id}/book`);
+        return res.redirect(`/listings/${listing._id}/book`);
     }
 
     const existingBooking = await Booking.findOne({
@@ -69,7 +88,7 @@ router.post("/listings/:id/book", isLoggedIn, isGuest, async (req, res) => {
 
     if (existingBooking) {
         req.flash("error", "This property is already booked for the selected dates. Please choose different dates.");
-        return res.redirect(`/listings/${req.params.id}/book`);
+        return res.redirect(`/listings/${listing._id}/book`);
     }
 
     const totalPrice = nights * listing.price;
@@ -77,7 +96,7 @@ router.post("/listings/:id/book", isLoggedIn, isGuest, async (req, res) => {
     const booking = new Booking({
         listing: listing._id,
         user: req.session.userId,
-        owner: listing.owner._id,
+        owner: listing.owner,
         checkIn: startDate,
         checkOut: endDate,
         guests: totalGuests,
@@ -94,10 +113,9 @@ router.post("/listings/:id/book", isLoggedIn, isGuest, async (req, res) => {
 
 // Show enquiry form
 router.get("/listings/:id/enquiry", isLoggedIn, isGuest, async (req, res) => {
-    const listing = await Listing.findById(req.params.id).populate("owner");
+    const listing = await findListing(req, res);
 
     if (!listing) {
-        req.flash("error", "Listing not found.");
         return res.redirect("/listings");
     }
 
@@ -106,38 +124,32 @@ router.get("/listings/:id/enquiry", isLoggedIn, isGuest, async (req, res) => {
 
 // Save enquiry
 router.post("/listings/:id/enquiry", isLoggedIn, isGuest, async (req, res) => {
-
-    const listing = await Listing.findById(req.params.id).populate("owner");
+    const listing = await findListing(req, res);
 
     if (!listing) {
-        req.flash("error", "Listing not found.");
         return res.redirect("/listings");
     }
 
     const { viewingDate, viewingTime, message } = req.body;
 
-    // Current date
     const selectedDate = new Date(viewingDate);
-
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Prevent past dates
     if (selectedDate < today) {
         req.flash("error", "Viewing date cannot be in the past.");
-        return res.redirect(`/listings/${req.params.id}/enquiry`);
+        return res.redirect(`/listings/${listing._id}/enquiry`);
     }
 
-    // Message validation
     if (!message || message.trim().length < 5) {
         req.flash("error", "Please enter a proper message for the host.");
-        return res.redirect(`/listings/${req.params.id}/enquiry`);
+        return res.redirect(`/listings/${listing._id}/enquiry`);
     }
 
     const enquiry = new Booking({
         listing: listing._id,
         user: req.session.userId,
-        owner: listing.owner._id,
+        owner: listing.owner,
         viewingDate,
         viewingTime,
         message,
@@ -232,6 +244,13 @@ router.get("/bookings/:id/pay", isLoggedIn, isGuest, async (req, res) => {
         return res.redirect("/my-bookings");
     }
 
+    if (!booking.listing) {
+        req.flash("error", "Listing for this booking was not found.");
+        return res.redirect("/my-bookings");
+    }
+
+    const baseUrl = process.env.BASE_URL || "http://localhost:8080";
+
     const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         mode: "payment",
@@ -247,8 +266,8 @@ router.get("/bookings/:id/pay", isLoggedIn, isGuest, async (req, res) => {
                 quantity: 1
             }
         ],
-        success_url: `http://localhost:8080/bookings/${booking._id}/success`,
-        cancel_url: `http://localhost:8080/my-bookings`
+        success_url: `${baseUrl}/bookings/${booking._id}/success`,
+        cancel_url: `${baseUrl}/my-bookings`
     });
 
     res.redirect(session.url);

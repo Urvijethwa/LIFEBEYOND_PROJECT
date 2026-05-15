@@ -2567,3 +2567,54 @@ footer h4 {
     font-weight: 700;
     margin-top: 6px;
 }
+
+/* Admin dashboard */
+.admin-container {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.admin-header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.admin-header h1 {
+    font-size: 2.4rem;
+    margin-bottom: 10px;
+}
+
+.admin-section {
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 18px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    margin-bottom: 35px;
+}
+
+.admin-section h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.admin-table th {
+    background: #213448;
+    color: white;
+}
+
+.admin-table tr:hover {
+    background: #f8f9fa;
+}

@@ -2,6 +2,8 @@
 // Import models
 const Listing = require("./models/listing");
 const Review = require("./models/review");
+//admin -checks role
+const User = require("./models/user");
 
 // Import Joi validation schemas
 const { listingSchema, userSchema, reviewSchema } = require("./schema");
@@ -103,6 +105,17 @@ module.exports.validateReview = (req, res, next) => {
     if (error) {
         req.flash("error", error.details[0].message);
         return res.redirect("back");
+    }
+
+    next();
+};
+
+module.exports.isAdmin = async (req, res, next) => {
+    const user = await User.findById(req.session.userId);
+
+    if (!user || user.role !== "admin") {
+        req.flash("error", "You do not have permission to access admin pages.");
+        return res.redirect("/listings");
     }
 
     next();

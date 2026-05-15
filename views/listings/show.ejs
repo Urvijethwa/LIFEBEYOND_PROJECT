@@ -96,11 +96,6 @@
                             <p><strong>Response:</strong> <%= listing.owner.responseTime || "Usually responds within 24 hours" %></p>
                             <p><strong>About:</strong> <%= listing.owner.bio || "This host has not added a bio yet." %></p>
 
-                            <% if(currentUser && listing.owner && String(currentUser._id) !== String(listing.owner._id)) { %>
-                                <a href="/messages/new/<%= listing._id %>" class="btn secondary-btn host-message-btn">
-                                    Message Host
-                                </a>
-                            <% } %>
                         </div>
                     </div>
                 </section>

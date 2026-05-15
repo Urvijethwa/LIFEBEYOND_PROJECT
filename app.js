@@ -9,6 +9,7 @@ const methodOverride = require("method-override");
 const session = require("express-session");
 const MongoStore = require("connect-mongo").default;
 const flash = require("connect-flash");
+const adminRoutes = require("./routes/admin");
 
 // Import routes
 const indexRoutes = require("./routes/index");
@@ -17,7 +18,7 @@ const userRoutes = require("./routes/users");
 const wishlistRoutes = require("./routes/wishlist");
 const reviewRoutes = require("./routes/reviews");
 const bookingRoutes = require("./routes/bookings");
-const messageRoutes = require("./routes/messages");
+
 
 const User = require("./models/user");
 
@@ -88,10 +89,9 @@ app.use("/", userRoutes);
 app.use("/", assistantRoutes);
 app.use("/", wishlistRoutes);
 app.use("/", bookingRoutes);
-app.use("/", messageRoutes);
 app.use("/listings", listingRoutes);
 app.use("/listings/:id/reviews", reviewRoutes);
-
+app.use("/", adminRoutes);
 // Default route
 app.get("/", (req, res) => {
     res.redirect("/listings");

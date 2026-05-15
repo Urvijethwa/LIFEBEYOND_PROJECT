@@ -5,7 +5,15 @@
 <% if(currentUser) { %>
     <div class="logged-user-box">
         Hello, <strong><%= currentUser.username %></strong> 
-        (<%= currentUser.role === "host" ? "Host" : "Guest" %>)
+        (
+        <% if(currentUser.role === "admin") { %>
+            Admin
+        <% } else if(currentUser.role === "host") { %>
+            Host
+        <% } else { %>
+            Guest
+        <% } %>
+        )
     </div>
 <% } %>
 
@@ -29,17 +37,6 @@
         <a href="/listings/new" class="btn">Add New Listing</a>
     <% } %>
 </div>
-
-<!-- If user is NOT logged in -->
-<% if(!currentUser) { %>
-    <div class="info-box">
-        <p>
-            Please <a href="/login">login</a> or 
-            <a href="/register">create an account</a> to book properties, save favourites, and leave reviews.
-        </p>
-    </div>
-    <!-- Encourages user to sign in -->
-<% } %>
 
 <!-- Search + filter (only for guests or not logged in) -->
 <% if(!currentUser || currentUser.role === "guest") { %>

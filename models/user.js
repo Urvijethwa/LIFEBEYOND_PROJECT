@@ -30,7 +30,7 @@ const userSchema = new Schema({
     // Role system (Guest vs Host)
     role: {
         type: String,
-        enum: ["guest", "host"], // only these values allowed
+        enum: ["guest", "host", "admin"], // only these values allowed
         default: "guest"         // default role when user registers
     },
 

@@ -9,7 +9,6 @@ const User = require("../models/user");
 
 const Listing = require("../models/listing");
 const Booking = require("../models/booking");
-const Message = require("../models/message");
 const Review = require("../models/review");
 
 // Import validation + login check
@@ -217,9 +216,6 @@ router.post("/account/delete", isLoggedIn, async (req, res) => {
         await Listing.deleteMany({ owner: userId });
         await Booking.deleteMany({
             $or: [{ user: userId }, { owner: userId }]
-        });
-        await Message.deleteMany({
-            $or: [{ sender: userId }, { receiver: userId }]
         });
         await Review.deleteMany({ author: userId });
 

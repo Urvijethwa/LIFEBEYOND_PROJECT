@@ -1,6 +1,6 @@
-// ==========================================
+//Search properties, create properties, edit/delete, AI recommendation results, show listing
+
 // SETUP & IMPORTS
-// ==========================================
 const express = require("express");
 const router = express.Router();
 

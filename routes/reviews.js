@@ -1,6 +1,6 @@
-// ==========================================
-// SETUP
-// ==========================================
+//Stores reviews and ratings
+
+//setup
 const express = require("express");
 
 // mergeParams: true → allows access to :id from parent route (/listings/:id)

@@ -1,3 +1,5 @@
+//admin dashboard
+
 //sends all the user + booking to the dashboard
 const express = require("express");
 const router = express.Router();

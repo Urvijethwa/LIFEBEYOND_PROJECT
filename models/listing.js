@@ -1,3 +1,5 @@
+//stores details about properties, price, title, location,image etc
+
 // Import mongoose to define schema and interact with MongoDB
 const mongoose = require("mongoose");
 

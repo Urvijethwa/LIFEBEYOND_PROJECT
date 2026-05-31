@@ -1,3 +1,5 @@
+//stores booking/enquiry details as in guest, host, dates, status, payment status
+
 // Import mongoose to define schema and interact with MongoDB
 const mongoose = require("mongoose");
 

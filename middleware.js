@@ -1,9 +1,11 @@
+//Protection checks: loggin in, owner, admin, validation
+
 //is code runs before the route response - handles form data, JSON data, flash messages and current logged in user data. 
 //backend protection, resuable middleware, validation/security layer
 // Import models
 const Listing = require("./models/listing");
 const Review = require("./models/review");
-//admin -checks role
+//admin checks role
 const User = require("./models/user");
 
 // Import Joi validation schemas

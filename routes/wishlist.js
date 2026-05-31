@@ -1,6 +1,6 @@
-// ==========================================
+//Add/remove/view wishlist
+
 // SETUP & IMPORTS
-// ==========================================
 const express = require("express");
 const router = express.Router();
 

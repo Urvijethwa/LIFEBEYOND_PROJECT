@@ -1,5 +1,5 @@
 // ==========================================
-// FEATURE: Enquiry System (Guest → Host message)
+// FEATURE: Enquiry System (Guest - Host message)
 // ==========================================
 
 // Route to SHOW the enquiry form for a specific listing

@@ -39,4 +39,4 @@ main()
         console.log(err);
     });
 
-    //file used for: connect to DB, Delte old data, add
+    //file used for: connect to DB, Delete old data

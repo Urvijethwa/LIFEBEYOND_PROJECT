@@ -1,6 +1,6 @@
-// ==========================================
+//Register, login, logout, account update, password change
+
 // SETUP & IMPORTS
-// ==========================================
 const express = require("express");
 const router = express.Router();
 

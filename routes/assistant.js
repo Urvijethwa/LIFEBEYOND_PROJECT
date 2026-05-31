@@ -1,3 +1,5 @@
+//Gemini AI chatbot assistant
+
 // Import Express framework
 const express = require("express");
 
@@ -7,7 +9,7 @@ const router = express.Router();
 // Import Gemini AI package
 const { GoogleGenAI } = require("@google/genai");
 
-// Import Axios for API requests
+// Import Axios for API requests - communicates with weather API
 const axios = require("axios");
 
 // Import Listing model from database

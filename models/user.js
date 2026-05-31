@@ -1,3 +1,5 @@
+//stores users details like wishlist, password, guest, host etc
+
 // Import mongoose to define schema and interact with MongoDB
 const mongoose = require("mongoose");
 

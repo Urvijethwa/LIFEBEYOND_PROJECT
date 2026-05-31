@@ -6,6 +6,7 @@
 // Load environment variables such as MongoDB URL and secret keys
 require("dotenv").config();
 
+//AI - imports the assistant route file
 const assistantRoutes = require("./routes/assistant");
 
 // Import external libraries
@@ -104,6 +105,7 @@ app.use(async (req, res, next) => {
 // Connect route files to URL paths
 app.use("/", indexRoutes);
 app.use("/", userRoutes);
+//Ai 
 app.use("/", assistantRoutes);
 app.use("/", wishlistRoutes);
 app.use("/", bookingRoutes);

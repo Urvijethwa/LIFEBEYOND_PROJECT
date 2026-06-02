@@ -39,6 +39,7 @@ const userSchema = new Schema({
     // Wishlist feature - stores saved listings
     wishlist: [
         {
+            //object id = mongodb id of the property
             type: Schema.Types.ObjectId,
             ref: "Listing" // links to Listing model
         }

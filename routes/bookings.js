@@ -9,7 +9,7 @@ const Booking = require("../models/booking");
 //only logged in user can book
 const { isLoggedIn, isGuest } = require("../middleware");
 
-//stored in .env environment variable
+//stored in .env environment variable 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 /*

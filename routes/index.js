@@ -1,3 +1,4 @@
+//handling static pages located in view 
 const express = require("express");
 const router = express.Router();
 

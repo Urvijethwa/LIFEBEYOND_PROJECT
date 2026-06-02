@@ -4,6 +4,7 @@
 const express = require("express");
 const router = express.Router();
 
+//bcrypt - loads library
 const bcrypt = require("bcryptjs");
 const User = require("../models/user");
 
@@ -30,6 +31,7 @@ router.post("/register", validateUser, async (req, res) => {
     try {
         const { username, email, password, role } = req.body;
 
+        //regex - password validation rule - checks must contain
         const passwordRegex = /^(?=.*[0-9])(?=.*[^A-Za-z0-9]).{6,}$/;
 
         if (!passwordRegex.test(password)) {
@@ -44,8 +46,10 @@ router.post("/register", validateUser, async (req, res) => {
             return res.redirect("/register");
         }
 
+        //converts user password into has before Mdb
         const hashedPassword = await bcrypt.hash(password, 12);
 
+        //saving the mdb
         const newUser = new User({
             username,
             email,
@@ -91,6 +95,7 @@ router.post("/login", async (req, res) => {
             return res.redirect("/login");
         }
 
+        //bcrypt used during login
         const validPassword = await bcrypt.compare(password, user.password);
 
         if (!validPassword) {

@@ -1,15 +1,16 @@
 //Gemini AI chatbot assistant
 
-// Import Express framework
+// Import Express framework - to create backend route
 const express = require("express");
 
-// Create router object for assistant routes
+// route handler - can be added to app.js but separated here
 const router = express.Router();
 
-// Import Gemini AI package
+// Import Gemini AI package 
 const { GoogleGenAI } = require("@google/genai");
 
 // Import Axios for API requests - communicates with weather API
+//helps to call external APIs like weather and map services
 const axios = require("axios");
 
 // Import Listing model from database
@@ -98,7 +99,7 @@ router.post("/assistant/chat", isLoggedIn, async (req, res) => {
                 // Gemini model
                 model: "gemini-2.5-flash",
 
-                // AI prompt
+                // AI in JSON because it needs a structured data 
                 contents: `
 Return ONLY valid JSON. No markdown.
 

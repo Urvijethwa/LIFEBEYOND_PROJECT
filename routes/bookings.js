@@ -6,8 +6,10 @@ const router = express.Router();
 const Listing = require("../models/listing");
 const Booking = require("../models/booking");
 
+//only logged in user can book
 const { isLoggedIn, isGuest } = require("../middleware");
 
+//stored in .env environment variable
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 /*
@@ -59,6 +61,7 @@ router.post("/listings/:id/book", isLoggedIn, isGuest, async (req, res) => {
 
     const nights = (endDate - startDate) / (1000 * 60 * 60 * 24);
 
+    //prevent booking in past
     if (startDate < today) {
         req.flash("error", "Check-in date cannot be in the past.");
         return res.redirect(`/listings/${listing._id}/book`);
@@ -76,11 +79,14 @@ router.post("/listings/:id/book", isLoggedIn, isGuest, async (req, res) => {
         return res.redirect(`/listings/${listing._id}/book`);
     }
 
+    //rejects if more guests are entred
     if (totalGuests > listing.maxGuests) {
         req.flash("error", `This property only allows up to ${listing.maxGuests} guests.`);
         return res.redirect(`/listings/${listing._id}/book`);
     }
 
+
+    //availability check - checks overlapping bookings
     const existingBooking = await Booking.findOne({
         listing: listing._id,
         status: { $in: ["pending", "approved", "paid"] },
@@ -107,6 +113,7 @@ router.post("/listings/:id/book", isLoggedIn, isGuest, async (req, res) => {
         status: "pending"
     });
 
+    //saves booking in MongoDB
     await booking.save();
 
     req.flash("success", "Booking created. Continue to payment.");
@@ -263,6 +270,7 @@ router.get("/bookings/:id/pay", isLoggedIn, isGuest, async (req, res) => {
                     product_data: {
                         name: booking.listing.title
                     },
+                    //stripe expects smallest currency unit - pence 
                     unit_amount: booking.totalPrice * 100
                 },
                 quantity: 1

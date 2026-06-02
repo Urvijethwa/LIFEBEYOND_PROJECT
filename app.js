@@ -1,9 +1,7 @@
-// Main entry point of the LifeBeyond system.
-// This file starts the Express server, connects MongoDB,
-// configures middleware, sessions, flash messages,
-// EJS views, and links all route files together.
+//usng express framework to config server, load middleware connect to database
 
 // Load environment variables such as MongoDB URL and secret keys
+//loads .env file
 require("dotenv").config();
 
 //AI - imports the assistant route file
@@ -39,27 +37,38 @@ const app = express();
 const MONGO_URL = process.env.MONGO_URL || "mongodb://127.0.0.1:27017/lifebeyond";
 const SESSION_SECRET = process.env.SESSION_SECRET || "mysecretkey";
 
-// Connect application to MongoDB database
+// Connect lifebeyond to MongoDB database
 mongoose.connect(MONGO_URL)
     .then(() => console.log("Connected to DB"))
     .catch((err) => console.log(err));
 
-// Store session data securely inside MongoDB
+// Store session data securely inside MongoDB - connect mongo
+//mongostore stores the express session to be stored inside of mondodb 
 const store = MongoStore.create({
+    //specifies what databse to use 
     mongoUrl: MONGO_URL,
+    //encryption setup/config + encryp key
     crypto: { secret: SESSION_SECRET },
+    //updates the mongodb session record in 24 hours for security/ performance
     touchAfter: 24 * 3600
 });
 
 // Session configuration
 const sessionOptions = {
     store,
+    //stops user from editing the session data/tempering the data/ verifies session is not modified
     secret: SESSION_SECRET,
+    //dont save if nothing changes - reduce unnecessary database write
     resave: false,
+    //only create the seeeion when action is performed like user logged in
     saveUninitialized: false,
+    //helps website rember the logged in user
     cookie: {
+        //session lasts for 7 days
         expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+        //cookie lifetime for 7 days
         maxAge: 7 * 24 * 60 * 60 * 1000,
+        //js in browser cannot access the cookie 
         httpOnly: true
     }
 };
@@ -105,6 +114,7 @@ app.use(async (req, res, next) => {
 // Connect route files to URL paths
 app.use("/", indexRoutes);
 app.use("/", userRoutes);
+
 //Ai 
 app.use("/", assistantRoutes);
 app.use("/", wishlistRoutes);
